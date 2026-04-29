@@ -8,10 +8,11 @@ export function UserProvider({ children }) {
   const [settings, setSettings] = useState({
     theme: 'dark',
     notifications: true,
-    fontSize: 'medium'
+    fontSize: 'medium',
+    language: 'English'
   });
 
-  // Load user from localStorage on init
+  // Load user and settings from localStorage on init
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -21,6 +22,15 @@ export function UserProvider({ children }) {
         console.error("Failed to parse user from localStorage:", error);
         localStorage.removeItem('user');
         setUser(null);
+      }
+    }
+
+    const savedSettings = localStorage.getItem('settings');
+    if (savedSettings) {
+      try {
+        setSettings(JSON.parse(savedSettings));
+      } catch (error) {
+        console.error("Failed to parse settings from localStorage:", error);
       }
     }
     setLoading(false);
@@ -43,7 +53,11 @@ export function UserProvider({ children }) {
   };
 
   const updateSettings = (newSettings) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem('settings', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   return (

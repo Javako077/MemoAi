@@ -12,20 +12,28 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
+import { translations } from '../utils/translations';
+import { Globe } from 'lucide-react';
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { logout, user } = useUser();
+  const { logout, user, settings, updateSettings } = useUser();
   const location = useLocation();
+  const t = translations[settings.language] || translations.English;
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { icon: MessageSquare, label: 'Memo Assistant', path: '/chat' },
-    { icon: Activity, label: 'Medicines', path: '/medicines' },
-    { icon: GraduationCap, label: 'My Routine', path: '/routine' },
-    { icon: User, label: 'Emergency', path: '/emergency' },
-    { icon: Settings, label: 'Elder Profile', path: '/elder-profile' },
+    { icon: LayoutDashboard, label: t.dashboard, path: '/dashboard' },
+    { icon: MessageSquare, label: t.chat, path: '/chat' },
+    { icon: Activity, label: t.medicines, path: '/medicines' },
+    { icon: GraduationCap, label: t.routine, path: '/routine' },
+    { icon: User, label: t.emergency, path: '/emergency' },
+    { icon: Settings, label: t.profile, path: '/elder-profile' },
   ];
+
+  const toggleLanguage = () => {
+    updateSettings({ language: settings.language === 'English' ? 'Hindi' : 'English' });
+  };
+
 
   return (
     <div className={`fixed left-0 top-0 h-screen bg-slate-900/50 backdrop-blur-xl border-r border-slate-800 transition-all duration-300 z-50 flex flex-col ${isCollapsed ? 'w-20' : 'w-64'}`}>
@@ -62,13 +70,21 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-slate-800">
+      <div className="p-4 border-t border-slate-800 space-y-2">
+        <button
+          onClick={toggleLanguage}
+          className="flex items-center gap-4 w-full px-4 py-3 text-slate-400 hover:bg-indigo-500/10 hover:text-indigo-400 rounded-xl transition-all"
+        >
+          <Globe size={22} className={settings.language === 'Hindi' ? 'text-indigo-400' : ''} />
+          {!isCollapsed && <span className="font-medium">{settings.language}</span>}
+        </button>
+
         <button
           onClick={logout}
           className="flex items-center gap-4 w-full px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl transition-all"
         >
           <LogOut size={22} />
-          {!isCollapsed && <span className="font-medium">Logout</span>}
+          {!isCollapsed && <span className="font-medium">{t.logout}</span>}
         </button>
 
         {!isCollapsed && (

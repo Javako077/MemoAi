@@ -57,9 +57,9 @@ export default function Settings() {
       items: [
         { 
           label: 'Language', 
-          desc: 'English (US)', 
+          desc: settings.language, 
           icon: Globe, 
-          action: () => {} 
+          action: () => updateSettings({ language: settings.language === 'English' ? 'Hindi' : 'English' }) 
         },
         { 
           label: 'Privacy Mode', 

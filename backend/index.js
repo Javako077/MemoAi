@@ -170,8 +170,12 @@ app.post("/api/chat", async (req, res) => {
     const userChat = new Chat({ userId, message, role: "user" });
     await userChat.save();
 
+    const profile = await UserProfile.findOne({ userId });
+    const userLanguage = profile?.language || "English";
+
     // Get real AI response from Gemini
-    const result = await model.generateContent(message);
+    const prompt = `SYSTEM: The user's preferred language is ${userLanguage}. Please respond in ${userLanguage}. User says: ${message}`;
+    const result = await model.generateContent(prompt);
     const assistantMessage = result.response.text();
 
     const aiChat = new Chat({ userId, message: assistantMessage, role: "assistant" });
@@ -199,8 +203,12 @@ app.post("/api/ai-command", async (req, res) => {
   try {
     const { userId, text } = req.body;
     
+    const profile = await UserProfile.findOne({ userId });
+    const userLanguage = profile?.language || "English";
+
     const prompt = `
       You are an AI assistant for an elderly care app. 
+      The user's preferred language is ${userLanguage}.
       The user said: "${text}"
       
       Determine their intent and extract any relevant data.
@@ -209,6 +217,8 @@ app.post("/api/ai-command", async (req, res) => {
       - "check_medicine"
       - "emergency" (user needs help, is in distress, or wants to contact emergency contact)
       - "unknown"
+
+      IMPORTANT: Your "reply" MUST be in ${userLanguage}. If Hindi, use Hindi script.
 
       Return ONLY a raw JSON object (no markdown formatting, no code blocks) with this structure:
       {

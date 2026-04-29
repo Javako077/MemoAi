@@ -17,14 +17,24 @@ const model = genAI.getGenerativeModel({
   - Always be polite and patient.`,
 });
 
-export const getGeminiResponse = async (chatHistory, newMessage) => {
+export const getGeminiResponse = async (chatHistory, newMessage, language = "English") => {
   try {
     // Gemini requires the first message in history to be from the 'user'
     const history = [];
     let firstUserFound = false;
 
+    // Add language instruction to history
+    history.push({
+      role: 'user',
+      parts: [{ text: `SYSTEM INSTRUCTION: From now on, please respond strictly in ${language}. If the language is Hindi, use Hindi script. If English, use English.` }],
+    });
+    history.push({
+      role: 'model',
+      parts: [{ text: `Understood. I will now respond in ${language}.` }],
+    });
+
     for (const msg of chatHistory) {
-      if (msg.role === 'user' || msg.role === 'user') firstUserFound = true;
+      if (msg.role === 'user') firstUserFound = true;
       if (firstUserFound) {
         history.push({
           role: msg.role === 'user' ? 'user' : 'model',

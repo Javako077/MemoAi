@@ -1,10 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Loader2, Mic, MicOff, Volume2, ArrowLeft, Sparkles, PhoneCall, X } from 'lucide-react';
+import { Send, Bot, User, Loader2, Mic, MicOff, Volume2, ArrowLeft, Sparkles, PhoneCall, X, Globe } from 'lucide-react';
 import { getGeminiResponse } from '../gemini';
 import { useVoice } from '../hooks/useVoice';
+import { translations } from '../utils/translations';
+
 import { Link, useLocation } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+
 
 export default function Chat({ user }) {
+  const { settings, updateSettings } = useUser();
+  const t = translations[settings.language] || translations.English;
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -62,9 +68,9 @@ export default function Chat({ user }) {
     setMessages(updatedMessages);
 
     try {
-      const aiResponse = await getGeminiResponse(messages, userMsg);
+      const aiResponse = await getGeminiResponse(messages, userMsg, settings.language);
       setMessages(prev => [...prev, { role: 'assistant', message: aiResponse }]);
-      speak(aiResponse);
+      speak(aiResponse, settings.language === 'Hindi' ? 'hi-IN' : 'en-US');
     } catch (error) {
       console.error("Chat Error:", error);
       setMessages(prev => [...prev, { role: 'assistant', message: "Maaf kijiye, main abhi thoda thak gayi hoon. Kya hum thodi der baad baat kar sakte hain?" }]);
@@ -95,10 +101,10 @@ export default function Chat({ user }) {
       setAssistantState('speaking');
       // Optimistic UI for overlay context if needed, but for now just process
       try {
-        const aiResponse = await getGeminiResponse(messages, transcript);
+        const aiResponse = await getGeminiResponse(messages, transcript, settings.language);
         setMessages(prev => [...prev, { role: 'user', message: transcript }, { role: 'assistant', message: aiResponse }]);
         
-        speak(aiResponse, 'hi-IN', () => {
+        speak(aiResponse, settings.language === 'Hindi' ? 'hi-IN' : 'en-US', () => {
           // You could loop here for continuous conversation
           setIsAssistantActive(false); 
         });
@@ -127,14 +133,20 @@ export default function Chat({ user }) {
               <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
                 MemoAi
               </h1>
-              <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold">Care Assistant</p>
+              <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold">{t.careAssistant}</p>
             </div>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
+          <button 
+            onClick={() => updateSettings({ language: settings.language === 'English' ? 'Hindi' : 'English' })}
+            className="flex items-center gap-2 px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl text-xs font-bold text-indigo-400 transition-all border border-indigo-500/20"
+          >
+            <Globe className="w-4 h-4" /> {settings.language === 'English' ? 'हिन्दी' : 'English'}
+          </button>
           <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium transition-all border border-slate-700/50">
-             <PhoneCall className="w-4 h-4 text-green-400" /> Emergency Call
+             <PhoneCall className="w-4 h-4 text-green-400" /> {t.emergencyCall}
           </button>
         </div>
       </header>
@@ -191,7 +203,7 @@ export default function Chat({ user }) {
                 <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-75"></div>
                 <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-150"></div>
               </div>
-              <span className="text-xs text-slate-400 font-medium">MemoAi is thinking...</span>
+              <span className="text-xs text-slate-400 font-medium">{t.thinking}</span>
             </div>
           </div>
         )}
@@ -210,7 +222,7 @@ export default function Chat({ user }) {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Message MemoAi..."
+                placeholder={t.placeholder}
                 className="w-full bg-slate-800/40 backdrop-blur-2xl border border-white/10 text-slate-100 px-7 py-5 rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all pr-32 placeholder:text-slate-500 shadow-[0_8px_32px_rgba(0,0,0,0.4)] group-hover:bg-slate-800/60"
                 disabled={isLoading}
               />
@@ -277,17 +289,17 @@ export default function Chat({ user }) {
 
           <div className="text-center space-y-4">
             <h2 className="text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-              {assistantState === 'speaking' ? 'MemoAi is Speaking...' : 'MemoAi is Listening...'}
+              {assistantState === 'speaking' ? t.speaking : t.listening}
             </h2>
             <p className="text-indigo-400 font-bold uppercase tracking-widest animate-pulse">
-              {assistantState === 'listening' ? 'Aapka intezaar hai...' : 'Kripya suniye...'}
+              {assistantState === 'listening' ? t.wait : t.listen}
             </p>
           </div>
 
           {/* User Transcript Preview */}
           {assistantState === 'listening' && (
             <div className="mt-12 max-w-lg px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-slate-300 italic animate-slide-up">
-              "Boliye, main sun rahi hoon..."
+              "{t.boliye}"
             </div>
           )}
         </div>
