@@ -1,0 +1,299 @@
+import { useState, useEffect, useRef } from 'react';
+import { Send, Bot, User, Loader2, Mic, MicOff, Volume2, ArrowLeft, Sparkles, PhoneCall, X } from 'lucide-react';
+import { getGeminiResponse } from '../gemini';
+import { useVoice } from '../hooks/useVoice';
+import { Link, useLocation } from 'react-router-dom';
+
+export default function Chat({ user }) {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAssistantActive, setIsAssistantActive] = useState(false);
+  const [assistantState, setAssistantState] = useState('idle'); // 'idle', 'speaking', 'listening'
+  const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const { speak, listen, stopListening, isListening } = useVoice();
+  const location = useLocation();
+
+  // Initial Greeting & Auto-start voice if requested
+  useEffect(() => {
+    const greeting = "Hello! Main aaj aapki kaise madad kar sakti hoon? Kya aapne apni dawaiyan le li hain?";
+    
+    // Check for auto-start voice parameter
+    const params = new URLSearchParams(location.search);
+    if (params.get('startVoice') === 'true') {
+      startVoiceAssistant();
+    } else {
+      setMessages([{ role: 'assistant', message: greeting }]);
+      const timer = setTimeout(() => {
+        speak(greeting);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [speak, location.search]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      listen((transcript) => {
+        setInput(transcript);
+      });
+    }
+  };
+
+  const handleSend = async (e) => {
+    if (e) e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMsg = input.trim();
+    setInput('');
+    setIsLoading(true);
+
+    const updatedMessages = [...messages, { role: 'user', message: userMsg }];
+    setMessages(updatedMessages);
+
+    try {
+      const aiResponse = await getGeminiResponse(messages, userMsg);
+      setMessages(prev => [...prev, { role: 'assistant', message: aiResponse }]);
+      speak(aiResponse);
+    } catch (error) {
+      console.error("Chat Error:", error);
+      setMessages(prev => [...prev, { role: 'assistant', message: "Maaf kijiye, main abhi thoda thak gayi hoon. Kya hum thodi der baad baat kar sakte hain?" }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Voice Assistant Flow
+  const startVoiceAssistant = () => {
+    setIsAssistantActive(true);
+    setAssistantState('speaking');
+    const greeting = "Hello! Main MemoAi hoon. Main aapki kya madad kar sakti hoon?";
+    
+    speak(greeting, 'hi-IN', () => {
+      startListeningInAssistant();
+    });
+  };
+
+  const startListeningInAssistant = () => {
+    setAssistantState('listening');
+    recognitionRef.current = listen(async (transcript) => {
+      if (!transcript) {
+        setIsAssistantActive(false);
+        return;
+      }
+      
+      setAssistantState('speaking');
+      // Optimistic UI for overlay context if needed, but for now just process
+      try {
+        const aiResponse = await getGeminiResponse(messages, transcript);
+        setMessages(prev => [...prev, { role: 'user', message: transcript }, { role: 'assistant', message: aiResponse }]);
+        
+        speak(aiResponse, 'hi-IN', () => {
+          // You could loop here for continuous conversation
+          setIsAssistantActive(false); 
+        });
+      } catch (err) {
+        setIsAssistantActive(false);
+      }
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 overflow-hidden">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-slate-900/70 border-b border-slate-800/50 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link to="/dashboard" className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <Bot className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full"></div>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                MemoAi
+              </h1>
+              <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold">Care Assistant</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium transition-all border border-slate-700/50">
+             <PhoneCall className="w-4 h-4 text-green-400" /> Emergency Call
+          </button>
+        </div>
+      </header>
+
+      {/* Chat Area */}
+      <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 max-w-4xl mx-auto w-full space-y-8 scrollbar-hide pb-32">
+        {messages.map((msg, idx) => (
+          <div 
+            key={idx} 
+            className={`flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+          >
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
+              msg.role === 'user' 
+                ? 'bg-slate-800 border border-slate-700 text-slate-300' 
+                : 'bg-indigo-500 text-white'
+            }`}>
+              {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+            </div>
+
+            <div className={`group relative max-w-[85%] md:max-w-[75%] p-4 rounded-2xl shadow-xl transition-all ${
+              msg.role === 'user' 
+                ? 'bg-indigo-600 text-white rounded-tr-none border border-indigo-400/20' 
+                : 'bg-slate-800/80 backdrop-blur-md border border-slate-700/50 text-slate-100 rounded-tl-none'
+            }`}>
+              <div className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">
+                {msg.message}
+              </div>
+              
+              {msg.role === 'assistant' && (
+                <button 
+                  onClick={() => speak(msg.message)}
+                  className="absolute -right-10 top-2 p-2 text-slate-500 hover:text-indigo-400 transition-colors"
+                  title="Listen again"
+                >
+                  <Volume2 className="w-4 h-4" />
+                </button>
+              )}
+              
+              <div className={`absolute bottom-[-18px] text-[10px] text-slate-500 font-medium ${msg.role === 'user' ? 'right-0' : 'left-0'}`}>
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {isLoading && (
+          <div className="flex gap-4 animate-pulse">
+            <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shrink-0">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
+            <div className="bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl rounded-tl-none flex items-center gap-3">
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></div>
+                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-75"></div>
+                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-150"></div>
+              </div>
+              <span className="text-xs text-slate-400 font-medium">MemoAi is thinking...</span>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} className="h-4" />
+      </main>
+
+      {/* Input Section */}
+      <footer className="p-6 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent fixed bottom-0 left-0 md:left-64 right-0 z-20">
+        <div className="max-w-5xl">
+          <form 
+            onSubmit={handleSend}
+            className="relative flex items-center gap-4 animate-slide-up"
+          >
+            <div className="relative flex-1 group">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Message MemoAi..."
+                className="w-full bg-slate-800/40 backdrop-blur-2xl border border-white/10 text-slate-100 px-7 py-5 rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all pr-32 placeholder:text-slate-500 shadow-[0_8px_32px_rgba(0,0,0,0.4)] group-hover:bg-slate-800/60"
+                disabled={isLoading}
+              />
+              
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <button 
+                  type="button"
+                  onClick={toggleListening}
+                  title={isListening ? "Stop listening" : "Voice input"}
+                  className={`p-3 rounded-full transition-all duration-300 ${
+                    isListening 
+                      ? 'bg-rose-500 text-white animate-pulse shadow-lg shadow-rose-500/30' 
+                      : 'text-slate-400 hover:text-indigo-400 hover:bg-white/5'
+                  }`}
+                >
+                  {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
+                
+                <button 
+                  type="submit" 
+                  disabled={!input.trim() || isLoading}
+                  className="p-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-full transition-all shadow-lg shadow-indigo-500/20 active:scale-95 flex items-center justify-center"
+                >
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <button 
+              type="button"
+              onClick={startVoiceAssistant}
+              title="Full Voice Mode"
+              className="hidden md:flex w-14 h-14 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-full items-center justify-center transition-all border border-indigo-500/20 hover:scale-105 active:scale-95"
+            >
+              <Sparkles className="w-6 h-6" />
+            </button>
+          </form>
+        </div>
+      </footer>
+
+      {/* Voice Assistant Overlay */}
+      {isAssistantActive && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-2xl animate-fade-in">
+          <button 
+            onClick={() => {
+              setIsAssistantActive(false);
+              window.speechSynthesis.cancel();
+              recognitionRef.current?.stop();
+            }}
+            className="absolute top-8 right-8 p-4 bg-slate-800 hover:bg-slate-700 rounded-full text-white transition-colors shadow-xl"
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          <div className="relative mb-20">
+            {/* Pulsating Orb */}
+            <div className={`w-40 h-40 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_80px_rgba(79,70,229,0.6)] ${assistantState === 'listening' ? 'animate-pulse' : 'animate-bounce'}`}>
+              {assistantState === 'listening' ? <Mic className="w-20 h-20 text-white" /> : <Bot className="w-20 h-20 text-white" />}
+            </div>
+            {/* Visualizer Rings */}
+            <div className="absolute inset-0 -z-10 animate-ping opacity-20 bg-indigo-400 rounded-full"></div>
+            <div className="absolute inset-0 -z-10 animate-ping delay-300 opacity-10 bg-indigo-400 rounded-full"></div>
+          </div>
+
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+              {assistantState === 'speaking' ? 'MemoAi is Speaking...' : 'MemoAi is Listening...'}
+            </h2>
+            <p className="text-indigo-400 font-bold uppercase tracking-widest animate-pulse">
+              {assistantState === 'listening' ? 'Aapka intezaar hai...' : 'Kripya suniye...'}
+            </p>
+          </div>
+
+          {/* User Transcript Preview */}
+          {assistantState === 'listening' && (
+            <div className="mt-12 max-w-lg px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-slate-300 italic animate-slide-up">
+              "Boliye, main sun rahi hoon..."
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
