@@ -80,7 +80,7 @@ export default function Login({ setUser }) {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center px-1">
                 <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Password</label>
-                <Link to="/forgot-password" hidden className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+                <Link to="/forgot-password" title="Click here to reset your password" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
                   Forgot?
                 </Link>
               </div>

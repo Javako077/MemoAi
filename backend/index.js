@@ -14,6 +14,13 @@ app.use(express.json());
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+// MailerSend Setup
+const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
+const mailerSend = new MailerSend({
+  apiKey: process.env.MAILERSEND_API_KEY,
+});
+const sentFrom = new Sender(process.env.MAILERSEND_SENDER_EMAIL, process.env.MAILERSEND_SENDER_NAME);
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB Connected Successfully"))
@@ -117,18 +124,37 @@ app.post("/api/auth/forgot-password", async (req, res) => {
     user.resetOtpExpiry = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    // Log OTP to terminal (Simulation of sending email)
-    console.log(`\n=========================================`);
-    console.log(`[EMAIL SIMULATION] To: ${email}`);
-    console.log(`Your Password Reset OTP is: ${otp}`);
-    console.log(`It is valid for 10 minutes.`);
-    console.log(`=========================================\n`);
+    // Send actual email using MailerSend
+    const recipients = [new Recipient(email, user.name)];
+    const emailParams = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo(recipients)
+      .setSubject("Your Password Reset OTP - MemoAi")
+      .setHtml(`
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+          <h2 style="color: #4A90E2;">Password Reset Request</h2>
+          <p>Hello <strong>${user.name}</strong>,</p>
+          <p>We received a request to reset your password. Use the following OTP to complete the process:</p>
+          <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; border-radius: 5px; margin: 20px 0;">
+            ${otp}
+          </div>
+          <p>This OTP is valid for <strong>10 minutes</strong>. If you did not request this, please ignore this email.</p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #888;">This is an automated message from MemoAi Support.</p>
+        </div>
+      `)
+      .setText(`Your Password Reset OTP is: ${otp}. It is valid for 10 minutes.`);
 
-    // In production, integrate nodemailer here:
-    // const transporter = nodemailer.createTransport({ ... });
-    // await transporter.sendMail({ to: email, text: `Your OTP is ${otp}` });
+    try {
+      await mailerSend.email.send(emailParams);
+      console.log(`Email sent successfully to ${email}`);
+    } catch (emailError) {
+      console.error("MailerSend Error:", emailError);
+      // We still return success to the user so they check their email, 
+      // but we log the error for debugging.
+    }
 
-    res.json({ message: "OTP sent to your email (check server console for simulation)" });
+    res.json({ message: "OTP sent to your email" });
   } catch (error) {
     console.error("Forgot Password Error:", error);
     res.status(500).json({ error: "Server Error" });
