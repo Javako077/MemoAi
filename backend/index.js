@@ -243,7 +243,7 @@ app.post("/api/ai-command", async (req, res) => {
       - "check_medicine"
       - "emergency" (user needs help, is in distress, or wants to contact emergency contact)
       - "unknown"
-
+ 
       IMPORTANT: Your "reply" MUST be in ${userLanguage}. If Hindi, use Hindi script.
 
       Return ONLY a raw JSON object (no markdown formatting, no code blocks) with this structure:
@@ -484,4 +484,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-
