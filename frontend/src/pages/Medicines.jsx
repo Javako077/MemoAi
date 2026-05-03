@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Pill, Plus, CheckCircle2, Trash2, Clock, Sparkles, Save } from 'lucide-react';
 import { useVoice } from '../hooks/useVoice';
 import { useUser } from '../context/UserContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5002/api";
