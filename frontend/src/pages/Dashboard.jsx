@@ -18,7 +18,8 @@ import {
   Sun,
   Moon,
   Coffee,
-  ListTodo
+  ListTodo,
+  Pill
 } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,11 +35,13 @@ import {
 } from 'recharts';
 import { useUser } from '../context/UserContext';
 import { useVoice } from '../hooks/useVoice';
+import { translations } from '../utils/translations';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5002/api";
 
 export default function Dashboard() {
   const { user, settings } = useUser();
+  const t = translations[settings.language] || translations.English;
   const { speak } = useVoice();
   const navigate = useNavigate();
   const isLight = settings?.theme === 'light';
@@ -179,7 +182,7 @@ export default function Dashboard() {
               <span className="text-xl font-medium text-slate-400">{greetingData.timeGreeting}</span>
             </div>
             <h1 className={`text-4xl md:text-5xl font-black tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {settings?.language === 'Hindi' ? `Namaste, ${user?.name} ji` : `Hello, ${user?.name}`}
+              {t.greeting}, {user?.name}
             </h1>
             <p className={`text-xl mt-3 font-medium ${isLight ? 'text-slate-600' : 'text-slate-300'}`}>
               {greetingData.voiceText}
@@ -192,8 +195,8 @@ export default function Dashboard() {
               <div className="w-3 h-3 bg-emerald-500 rounded-full relative"></div>
             </div>
             <div>
-              <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Assistant Live</p>
-              <p className={`text-sm font-bold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>Listening for commands...</p>
+              <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">{t.assistantLive}</p>
+              <p className={`text-sm font-bold ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>{t.listeningCommands}</p>
             </div>
 
           </div>
@@ -210,7 +213,7 @@ export default function Dashboard() {
             <div className={`${isLight ? 'glass-panel-light' : 'glass-panel'} p-6 border-emerald-500/20 bg-emerald-500/5 group hover:bg-emerald-500/10 transition-colors`}>
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">Taken</p>
+                  <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">{t.medTaken}</p>
                   <p className="text-4xl font-black mt-1 text-emerald-500">{stats.taken}</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500">
@@ -221,7 +224,7 @@ export default function Dashboard() {
             <div className={`${isLight ? 'glass-panel-light' : 'glass-panel'} p-6 border-amber-500/20 bg-amber-500/5 group hover:bg-amber-500/10 transition-colors`}>
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">Pending</p>
+                  <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">{t.medPending}</p>
                   <p className="text-4xl font-black mt-1 text-amber-500">{stats.pending}</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-amber-400/20 flex items-center justify-center text-amber-500">
@@ -232,7 +235,7 @@ export default function Dashboard() {
             <div className={`${isLight ? 'glass-panel-light' : 'glass-panel'} p-6 border-rose-500/20 bg-rose-500/5 group hover:bg-rose-500/10 transition-colors`}>
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">Missed</p>
+                  <p className="text-slate-400 font-bold text-sm uppercase tracking-wider">{t.medMissed}</p>
                   <p className="text-4xl font-black mt-1 text-rose-500">{stats.missed}</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-rose-400/20 flex items-center justify-center text-rose-500">
@@ -240,7 +243,6 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* 3. Next Medicine (Highlight Card) */}
@@ -258,7 +260,7 @@ export default function Dashboard() {
                     <Activity size={40} />
                   </div>
                   <div>
-                    <span className="bg-white/20 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest">Next Medicine</span>
+                    <span className="bg-white/20 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest">{t.nextMed}</span>
                     <h2 className="text-4xl font-black text-white mt-2">{nextMedicine.name}</h2>
                     <div className="flex items-center gap-2 text-indigo-100 mt-2 font-bold text-lg">
                       <Clock size={20} /> {nextMedicine.time} • {nextMedicine.dosage}
@@ -270,13 +272,13 @@ export default function Dashboard() {
                   className="w-full md:w-auto bg-white text-indigo-600 font-black py-5 px-10 rounded-2xl text-xl shadow-xl hover:bg-indigo-50 transition-all active:scale-95 flex items-center justify-center gap-3"
                 >
                   <CheckCircle2 size={24} />
-                  Mark as Taken
+                  {t.markTaken}
                 </button>
               </div>
             </motion.div>
           ) : (
             <div className={`${isLight ? 'bg-white border-2 border-slate-100 shadow-lg' : 'bg-slate-800/40 border-2 border-dashed border-slate-700'} p-8 rounded-[2.5rem] text-center`}>
-              <p className={`${isLight ? 'text-slate-500' : 'text-slate-400'} text-xl font-bold`}>All medicines taken! Good job. 🌟</p>
+              <p className={`${isLight ? 'text-slate-500' : 'text-slate-400'} text-xl font-bold`}>{t.noMedToday}</p>
             </div>
 
           )}
@@ -284,27 +286,73 @@ export default function Dashboard() {
           {/* 9. Weekly Medicine Report */}
           <div className={`${isLight ? 'glass-panel-light' : 'glass-panel'} p-8`}>
 
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>
-                <h3 className="text-2xl font-black">Weekly Adherence</h3>
-                <p className="text-slate-400">Medicine consistency over the last 7 days.</p>
+                <h3 className="text-2xl font-black flex items-center gap-3">
+                  <Activity className="text-indigo-500" /> {t.weeklyAdherence || 'Weekly Adherence'}
+                </h3>
+                <p className="text-slate-400">{t.consistencyDesc || 'Medicine consistency over the last 7 days.'}</p>
               </div>
-              <Zap className="text-yellow-400" size={32} />
+              <div className="flex items-center gap-2 bg-indigo-500/10 px-4 py-2 rounded-2xl border border-indigo-500/20">
+                <Zap className="text-yellow-400" size={20} />
+                <span className="font-bold text-indigo-400">
+                  {Math.round((chartDataToRender.reduce((acc, curr) => acc + curr.taken, 0) / (chartDataToRender.reduce((acc, curr) => acc + curr.total, 0) || 1)) * 100)}% {t.consistency || 'Consistency'}
+                </span>
+              </div>
             </div>
-            <div className="h-[300px] w-full min-w-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartDataToRender}>
+            <div className="w-full">
+              <ResponsiveContainer width="99%" height={300}>
+                <BarChart data={chartDataToRender} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorTaken" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#818cf8" stopOpacity={0.3}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke={isLight ? "#e2e8f0" : "#334155"} vertical={false} />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: isLight ? '#64748b' : '#94a3b8'}} />
+                  <XAxis 
+                    dataKey="day" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: isLight ? '#64748b' : '#94a3b8', fontSize: 14, fontWeight: 'bold'}} 
+                  />
                   <YAxis hide />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: isLight ? '#fff' : '#1e293b', border: 'none', borderRadius: '12px', color: isLight ? '#1e293b' : '#fff', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                     cursor={{fill: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.05)'}}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className={`${isLight ? 'bg-white shadow-2xl' : 'bg-slate-900'} p-4 rounded-2xl border ${isLight ? 'border-slate-100' : 'border-white/10'} shadow-xl`}>
+                            <p className="font-bold text-lg mb-2">{data.day}</p>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 text-emerald-500">
+                                <CheckCircle2 size={16} />
+                                <span className="text-sm font-bold">{data.taken} {t.medTaken}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-slate-400">
+                                <Pill size={16} />
+                                <span className="text-sm font-medium">{data.total} {t.totalMeds || 'Total'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
-
-                  <Bar dataKey="taken" radius={[10, 10, 0, 0]}>
+                  
+                  <Bar 
+                    dataKey="taken" 
+                    radius={[10, 10, 10, 10]} 
+                    barSize={40}
+                  >
                     {chartDataToRender.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.taken === entry.total && entry.total > 0 ? '#10b981' : '#f59e0b'} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.taken === entry.total && entry.total > 0 ? '#10b981' : '#6366f1'} 
+                        fillOpacity={0.9}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -339,8 +387,8 @@ export default function Dashboard() {
             <div className="relative z-10 flex flex-col items-center gap-4 text-white">
               <AlertCircle size={64} className="animate-pulse" />
               <div>
-                <h3 className="text-3xl font-black uppercase tracking-tighter">Emergency</h3>
-                <p className="text-rose-100 font-bold mt-1">Call Family Now</p>
+                <h3 className="text-3xl font-black uppercase tracking-tighter">{t.emergency}</h3>
+                <p className="text-rose-100 font-bold mt-1">{t.emergencyCall}</p>
               </div>
             </div>
           </button>
@@ -358,7 +406,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="px-4 py-2 bg-emerald-500/10 text-emerald-400 text-xs font-black rounded-lg border border-emerald-500/20 inline-block">
-              ALL OK
+              {t.allOk}
             </div>
           </div>
 
@@ -366,7 +414,7 @@ export default function Dashboard() {
           <div className={`${isLight ? 'glass-panel-light' : 'glass-panel'} p-6 space-y-4`}>
 
             <h3 className={`font-black text-lg flex items-center gap-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              <ListTodo size={20} className="text-indigo-400" /> Routine Tasks
+              <ListTodo size={20} className="text-indigo-400" /> {t.routineTasks}
             </h3>
             <div className="space-y-3">
               {routine?.tasks?.length > 0 ? (
@@ -392,7 +440,7 @@ export default function Dashboard() {
               )}
               {routine?.tasks?.length > 4 && (
                 <Link to="/routine" className="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center justify-center gap-1 mt-2">
-                  View all tasks <ArrowRight size={12} />
+                  {t.viewAll} <ArrowRight size={12} />
                 </Link>
               )}
           </div>

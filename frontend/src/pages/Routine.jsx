@@ -15,11 +15,13 @@ import {
 } from 'lucide-react';
 import { useVoice } from '../hooks/useVoice';
 import { useUser } from '../context/UserContext';
+import { translations } from '../utils/translations';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5002/api";
 
 export default function Routine({ user }) {
   const { settings } = useUser();
+  const t = translations[settings.language] || translations.English;
   const isLight = settings?.theme === 'light';
   const [tasks, setTasks] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -110,12 +112,12 @@ export default function Routine({ user }) {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Calendar className="text-indigo-500 w-6 h-6" />
-              <span className="text-indigo-500 font-bold tracking-widest uppercase text-sm">Daily Schedule</span>
+              <span className="text-indigo-500 font-bold tracking-widest uppercase text-sm">{t.dailySchedule}</span>
             </div>
             <h1 className={`text-5xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {settings?.language === 'Hindi' ? 'Meri Dincharya' : 'My Routine'}
+              {t.myRoutine}
             </h1>
-            <p className="text-slate-500 mt-2 text-lg">Manage your daily activities and tasks here.</p>
+            <p className="text-slate-500 mt-2 text-lg">{t.manageActivities}</p>
           </div>
           
           <button 
@@ -123,7 +125,7 @@ export default function Routine({ user }) {
             className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-500/20 transition-all active:scale-95 group"
           >
             <Plus className="group-hover:rotate-90 transition-transform" />
-            {settings?.language === 'Hindi' ? 'Naya Task' : 'Add New Task'}
+            {t.newTask}
           </button>
         </div>
 
@@ -134,7 +136,7 @@ export default function Routine({ user }) {
               <ListTodo size={24} />
             </div>
             <div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Tasks</p>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.totalTasks}</p>
               <p className="text-2xl font-black">{tasks.length}</p>
             </div>
           </div>
@@ -143,7 +145,7 @@ export default function Routine({ user }) {
               <CheckCircle2 size={24} />
             </div>
             <div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Completed</p>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.completed}</p>
               <p className="text-2xl font-black text-emerald-500">{tasks.filter(t => t.completed).length}</p>
             </div>
           </div>
@@ -152,7 +154,7 @@ export default function Routine({ user }) {
               <Clock size={24} />
             </div>
             <div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Pending</p>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.medPending}</p>
               <p className="text-2xl font-black text-amber-500">{tasks.filter(t => !t.completed).length}</p>
             </div>
           </div>
@@ -210,8 +212,8 @@ export default function Routine({ user }) {
               <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Sparkles size={40} className="text-indigo-400" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-400">No tasks planned for today</h3>
-              <p className="text-slate-500 mt-2">Click "Add New Task" to start your schedule.</p>
+              <h3 className="text-2xl font-bold text-slate-400">{t.noMedToday}</h3>
+              <p className="text-slate-500 mt-2">{t.manageActivities}</p>
             </div>
           )}
         </div>
@@ -223,7 +225,7 @@ export default function Routine({ user }) {
           <div className={`${isLight ? 'bg-white' : 'bg-slate-900'} w-full max-w-xl rounded-[2.5rem] border ${isLight ? 'border-slate-200 shadow-2xl' : 'border-white/10 shadow-[0_0_100px_rgba(79,70,229,0.2)]'} p-8 space-y-8 animate-in zoom-in-95 duration-300`}>
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-black">
-                {editingTask ? (settings?.language === 'Hindi' ? 'Task Edit Karein' : 'Edit Task') : (settings?.language === 'Hindi' ? 'Naya Task' : 'Add New Task')}
+                {editingTask ? t.editTask : t.newTask}
               </h2>
               <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
                 <X size={24} />
@@ -232,7 +234,7 @@ export default function Routine({ user }) {
 
             <form onSubmit={editingTask ? updateTask : addTask} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-widest text-slate-500 ml-2">Task Title</label>
+                <label className="text-sm font-bold uppercase tracking-widest text-slate-500 ml-2">{t.medName}</label>
                 <input 
                   type="text"
                   required
@@ -245,7 +247,7 @@ export default function Routine({ user }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-widest text-slate-500 ml-2">Schedule Time</label>
+                <label className="text-sm font-bold uppercase tracking-widest text-slate-500 ml-2">{t.scheduleTime}</label>
                 <input 
                   type="time"
                   required

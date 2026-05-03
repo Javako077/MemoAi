@@ -14,11 +14,13 @@ import {
 } from 'lucide-react';
 import { useVoice } from '../hooks/useVoice';
 import { useUser } from '../context/UserContext';
+import { translations } from '../utils/translations';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5002/api";
 
 export default function ElderProfile({ user: authUser }) {
   const { settings, updateSettings, updateProfile } = useUser();
+  const t = translations[settings.language] || translations.English;
   const isLight = settings?.theme === 'light';
   const fileInputRef = useRef(null);
 
@@ -144,7 +146,7 @@ export default function ElderProfile({ user: authUser }) {
             </p>
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
               <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${profile.role === 'elder' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                {profile.role}
+                {profile.role === 'elder' ? t.elder : t.caregiver}
               </span>
             </div>
           </div>
@@ -162,12 +164,12 @@ export default function ElderProfile({ user: authUser }) {
           {/* Personal Info Card */}
           <div className={`${isLight ? 'glass-panel-light' : 'glass-panel'} p-8 space-y-6`}>
             <h2 className="text-xl font-black flex items-center gap-3 border-b border-white/5 pb-4">
-              <User className="text-indigo-400" /> Personal Info
+              <User className="text-indigo-400" /> {t.personalInfo}
             </h2>
             
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.fullName}</label>
                 <input 
                   type="text"
                   className={isLight ? "input-field-light" : "input-field"}
@@ -178,7 +180,7 @@ export default function ElderProfile({ user: authUser }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Email (Read Only)</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.emailReadOnly}</label>
                 <div className={`${isLight ? 'bg-slate-100' : 'bg-slate-800/40'} p-3 rounded-xl border ${isLight ? 'border-slate-200' : 'border-white/5'} text-slate-500 cursor-not-allowed`}>
                   {profile.email}
                 </div>
@@ -186,7 +188,7 @@ export default function ElderProfile({ user: authUser }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Age</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.age}</label>
                   <input 
                     type="number"
                     className={isLight ? "input-field-light" : "input-field"}
@@ -195,14 +197,14 @@ export default function ElderProfile({ user: authUser }) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Role</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.role}</label>
                   <select 
                     className={isLight ? "input-field-light" : "input-field"}
                     value={profile.role}
                     onChange={e => setProfile({...profile, role: e.target.value})}
                   >
-                    <option value="elder">Elder</option>
-                    <option value="caregiver">Caregiver</option>
+                    <option value="elder">{t.elder}</option>
+                    <option value="caregiver">{t.caregiver}</option>
                   </select>
                 </div>
               </div>
@@ -212,12 +214,12 @@ export default function ElderProfile({ user: authUser }) {
           {/* Preferences & Contact */}
           <div className={`${isLight ? 'glass-panel-light' : 'glass-panel'} p-8 space-y-6`}>
             <h2 className="text-xl font-black flex items-center gap-3 border-b border-white/5 pb-4">
-              <Shield className="text-indigo-400" /> Settings & Contact
+              <Shield className="text-indigo-400" /> {t.settingsContact}
             </h2>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Preferred Language</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.prefLanguage}</label>
                 <div className="flex gap-4">
                   {['English', 'Hindi'].map((lang) => (
                     <button
@@ -234,7 +236,7 @@ export default function ElderProfile({ user: authUser }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Emergency Contact</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.emergencyContact}</label>
                 <div className="relative">
                   <Smartphone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                   <input 
@@ -248,7 +250,7 @@ export default function ElderProfile({ user: authUser }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Medical Conditions</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.medConditions}</label>
                 <textarea 
                   className={`${isLight ? "input-field-light" : "input-field"} h-24 pt-3`}
                   placeholder="e.g. Diabetes, High BP..."
@@ -270,7 +272,7 @@ export default function ElderProfile({ user: authUser }) {
           ) : (
             <>
               <Save size={28} />
-              {settings?.language === 'Hindi' ? 'Badlav Save Karein' : 'Save Profile Changes'}
+              {t.saveProfile}
             </>
           )}
         </button>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
+import { translations } from '../utils/translations';
 import { 
   User, 
   Languages, 
@@ -21,6 +22,7 @@ import {
 
 export default function Settings() {
   const { user, logout, updateProfile, settings, updateSettings } = useUser();
+  const t = translations[settings.language] || translations.English;
   const isLight = settings.theme === 'light';
   const [saveStatus, setSaveStatus] = useState(null);
 
@@ -61,16 +63,16 @@ export default function Settings() {
   const sections = [
     {
       id: 'profile',
-      title: 'Profile Settings',
+      title: t.profileSettings,
       icon: User,
       color: 'text-blue-400',
       bgColor: 'bg-blue-400/10',
-      description: 'Personalize your identity and UI experience.',
+      description: t.profileDesc,
       content: (
         <form onSubmit={handleUpdateProfile} className="space-y-4 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">Display Name</label>
+              <label className="text-sm font-medium text-slate-400">{t.displayName}</label>
               <input 
                 name="name"
                 type="text" 
@@ -80,7 +82,7 @@ export default function Settings() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">Age (Optional)</label>
+              <label className="text-sm font-medium text-slate-400">{t.ageOptional}</label>
               <input 
                 name="age"
                 type="number" 
@@ -92,24 +94,24 @@ export default function Settings() {
           </div>
           <button type="submit" className="btn-primary w-auto px-8 flex items-center gap-2">
             <Save size={18} />
-            Save Profile
+            {t.saveProfile}
           </button>
         </form>
       )
     },
     {
       id: 'language',
-      title: 'Language & Voice Settings',
+      title: t.langVoiceSettings,
       icon: Languages,
       color: 'text-indigo-400',
       bgColor: 'bg-indigo-400/10',
-      description: 'Choose your preferred language and AI voice speed.',
+      description: t.langVoiceDesc,
       content: (
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                <Languages size={14} /> Select Language
+                <Languages size={14} /> {t.selectLang}
               </label>
               <div className="flex gap-2">
                 {['Hindi', 'English'].map((lang) => (
@@ -129,7 +131,7 @@ export default function Settings() {
             </div>
             <div className="space-y-3">
               <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                <Volume2 size={14} /> Voice Speed
+                <Volume2 size={14} /> {t.voiceSpeed}
               </label>
               <div className="flex gap-2">
                 {['Slow', 'Normal'].map((speed) => (
@@ -142,7 +144,7 @@ export default function Settings() {
                         : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'
                     }`}
                   >
-                    {speed} {speed === 'Slow' && '(Recommended)'}
+                    {speed === 'Slow' ? t.slow : t.normal} {speed === 'Slow' && `(${t.recommended})`}
                   </button>
                 ))}
               </div>
@@ -153,18 +155,18 @@ export default function Settings() {
     },
     {
       id: 'notifications',
-      title: 'Notification Settings',
+      title: t.notificationSettings,
       icon: Bell,
       color: 'text-amber-400',
       bgColor: 'bg-amber-400/10',
-      description: 'Manage how and when you get reminded.',
+      description: t.notificationDesc,
       content: (
         <div className="p-6 space-y-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-slate-800/40 rounded-2xl border border-slate-700">
               <div>
-                <h4 className="font-bold">Medicine Reminders</h4>
-                <p className="text-sm text-slate-400">Get alerts for your scheduled doses.</p>
+                <h4 className="font-bold">{t.medReminders}</h4>
+                <p className="text-sm text-slate-400">{t.medRemindersDesc}</p>
               </div>
               <button 
                 onClick={() => handleUpdateSetting('medicineReminders', !settings.medicineReminders)}
@@ -175,8 +177,8 @@ export default function Settings() {
             </div>
             <div className="flex items-center justify-between p-4 bg-slate-800/40 rounded-2xl border border-slate-700">
               <div>
-                <h4 className="font-bold">Voice Reminders</h4>
-                <p className="text-sm text-slate-400">AI will speak out reminders aloud.</p>
+                <h4 className="font-bold">{t.voiceReminders}</h4>
+                <p className="text-sm text-slate-400">{t.voiceRemindersDesc}</p>
               </div>
               <button 
                 onClick={() => handleUpdateSetting('voiceReminders', !settings.voiceReminders)}
@@ -188,7 +190,7 @@ export default function Settings() {
           </div>
           <div className="space-y-3">
             <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
-              <Clock size={14} /> Reminder Repeat Time
+              <Clock size={14} /> {t.repeatTime}
             </label>
             <div className="flex gap-2">
               {[5, 10].map((time) => (
@@ -201,7 +203,7 @@ export default function Settings() {
                       : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'
                   }`}
                 >
-                  {time} Minutes
+                  {time} {t.minutes}
                 </button>
               ))}
             </div>
@@ -211,11 +213,11 @@ export default function Settings() {
     },
     {
       id: 'caregiver',
-      title: 'Caregiver Linking',
+      title: t.caregiverLinking,
       icon: Users,
       color: 'text-emerald-400',
       bgColor: 'bg-emerald-400/10',
-      description: 'Connect with a family member or caregiver.',
+      description: t.caregiverDesc,
       content: (
         <div className="p-6 space-y-6">
           <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between">
@@ -224,26 +226,26 @@ export default function Settings() {
                 <Users size={20} />
               </div>
               <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">Connected Caregiver</p>
-                <p className="text-lg font-bold">{settings.caregiverName || 'None'}</p>
+                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">{t.connectedCaregiver}</p>
+                <p className="text-lg font-bold">{settings.caregiverName || (settings.language === 'Hindi' ? 'कोई नहीं' : 'None')}</p>
               </div>
             </div>
           </div>
           <div className="space-y-3">
-            <label className="text-sm font-medium text-slate-400">Link New Caregiver</label>
+            <label className="text-sm font-medium text-slate-400">{t.linkNewCaregiver}</label>
             <div className="flex gap-2">
               <input 
                 type="text" 
                 value={caregiverId}
                 onChange={(e) => setCaregiverId(e.target.value)}
                 className={isLight ? "input-field-light" : "input-field"} 
-                placeholder="Enter Caregiver ID or Email"
+                placeholder={t.caregiverPlaceholder}
               />
               <button 
                 onClick={handleLinkCaregiver}
                 className="px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all whitespace-nowrap"
               >
-                Link Caregiver
+                {t.linkButton}
               </button>
             </div>
           </div>
@@ -252,15 +254,15 @@ export default function Settings() {
     },
     {
       id: 'emergency',
-      title: 'Emergency Contact',
+      title: t.emergencyContact,
       icon: PhoneCall,
       color: 'text-rose-400',
       bgColor: 'bg-rose-400/10',
-      description: 'Setup your primary contact for emergencies.',
+      description: t.emergencyDesc,
       content: (
         <div className="p-6 space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-400">Emergency Phone Number</label>
+            <label className="text-sm font-medium text-slate-400">{t.emergencyPhone}</label>
             <div className="flex gap-2">
               <input 
                 type="tel" 
@@ -274,7 +276,7 @@ export default function Settings() {
                 className="px-6 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 font-bold rounded-xl transition-all whitespace-nowrap flex items-center gap-2"
               >
                 <AlertCircle size={18} />
-                Send Test Alert
+                {t.sendTest}
               </button>
             </div>
           </div>
@@ -283,11 +285,11 @@ export default function Settings() {
     },
     {
       id: 'voice-help',
-      title: 'Voice Commands Help',
+      title: t.voiceHelp,
       icon: Mic,
       color: 'text-purple-400',
       bgColor: 'bg-purple-400/10',
-      description: 'Guidance on how to talk to MemoAi.',
+      description: t.voiceHelpDesc,
       content: (
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -313,11 +315,11 @@ export default function Settings() {
     },
     {
       id: 'smart-ai',
-      title: 'Smart AI Features',
+      title: t.smartAi,
       icon: Zap,
       color: 'text-yellow-400',
       bgColor: 'bg-yellow-400/10',
-      description: 'Advanced AI summaries for your daily routine.',
+      description: t.smartAiDesc,
       content: (
         <div className="p-6">
           <div className="flex items-center justify-between p-6 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-3xl border border-yellow-500/20">
@@ -326,9 +328,9 @@ export default function Settings() {
                 <Zap size={24} />
               </div>
               <div>
-                <h4 className="font-bold text-lg">Daily Summary</h4>
+                <h4 className="font-bold text-lg">{t.dailySummary}</h4>
                 <p className="text-sm text-slate-400 max-w-md">
-                  AI will say: “Aaj aapne 2 dawai le li hain, 1 baaki hai” at the end of the day.
+                  {t.dailySummaryDesc}
                 </p>
               </div>
             </div>
@@ -344,17 +346,17 @@ export default function Settings() {
     },
     {
       id: 'appearance',
-      title: 'Appearance Mode',
+      title: t.appearanceMode,
       icon: Moon,
       color: 'text-sky-400',
       bgColor: 'bg-sky-400/10',
-      description: 'Switch between light and dark visual themes.',
+      description: t.appearanceDesc,
       content: (
         <div className="p-6">
           <div className="flex gap-4">
             {[
-              { id: 'dark', label: 'Dark Mode', icon: Moon },
-              { id: 'light', label: 'Light Mode', icon: Sun }
+              { id: 'dark', label: t.darkMode, icon: Moon },
+              { id: 'light', label: t.lightMode, icon: Sun }
             ].map((mode) => (
               <button
                 key={mode.id}
@@ -376,23 +378,23 @@ export default function Settings() {
     },
     {
       id: 'security',
-      title: 'Security & Account',
+      title: t.securityAccount,
       icon: Lock,
       color: 'text-slate-400',
       bgColor: 'bg-slate-400/10',
-      description: 'Manage your password and sign out.',
+      description: t.securityDesc,
       content: (
         <div className="p-6 flex flex-col md:flex-row gap-4">
           <button className={`${isLight ? 'btn-secondary-light' : 'btn-secondary'} flex-1 flex items-center justify-center gap-2`}>
             <Lock size={18} />
-            Change Password
+            {t.changePassword}
           </button>
           <button 
             onClick={logout}
             className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2"
           >
             <LogOut size={18} />
-            Logout Account
+            {t.logoutAccount}
           </button>
         </div>
       )
@@ -404,18 +406,18 @@ export default function Settings() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className={`text-5xl font-black ${isLight ? 'text-slate-900' : 'bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent'}`}>
-            Settings
+            {t.settingsTitle}
           </h1>
 
           <p className="text-slate-400 mt-3 text-lg">
-            Manage your profile, preferences, and emergency settings.
+            {t.settingsDesc}
           </p>
         </div>
         
         {saveStatus === 'saved' && (
           <div className="flex items-center gap-2 text-emerald-400 bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20 animate-bounce">
             <CheckCircle2 size={16} />
-            <span className="font-bold text-sm">Settings Saved!</span>
+            <span className="font-bold text-sm">{t.settingsSaved}</span>
           </div>
         )}
       </div>
@@ -451,8 +453,8 @@ export default function Settings() {
             <CheckCircle2 size={32} />
           </div>
           <div>
-            <h4 className={`text-2xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>All Set!</h4>
-            <p className="text-slate-400">Your preferences are automatically synced across devices.</p>
+            <h4 className={`text-2xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>{t.allSet}</h4>
+            <p className="text-slate-400">{t.syncDesc}</p>
           </div>
 
         </div>
@@ -462,7 +464,7 @@ export default function Settings() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
           </span>
-          <span className="font-bold text-slate-300">System Live</span>
+          <span className="font-bold text-slate-300">{t.systemLive}</span>
         </div>
       </div>
     </div>
