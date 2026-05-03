@@ -44,7 +44,7 @@ function AppContent() {
         {/* Protected Routes with Layout */}
         <Route path="/chat" element={user ? <Layout><Chat user={user} /></Layout> : <Navigate to="/login" />} />
         <Route path="/dashboard" element={user ? <Layout><Dashboard user={user} /></Layout> : <Navigate to="/login" />} />
-        <Route path="/profile" element={user ? <Layout><Profile /></Layout> : <Navigate to="/login" />} />
+        <Route path="/profile" element={user ? <Layout><ElderProfile user={user} /></Layout> : <Navigate to="/login" />} />
         <Route path="/settings" element={user ? <Layout><Settings /></Layout> : <Navigate to="/login" />} />
         <Route path="/medicines" element={user ? <Layout><Medicines user={user} /></Layout> : <Navigate to="/login" />} />
         <Route path="/routine" element={user ? <Layout><Routine user={user} /></Layout> : <Navigate to="/login" />} />

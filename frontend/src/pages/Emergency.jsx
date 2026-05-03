@@ -99,9 +99,9 @@ export default function Emergency({ user }) {
 
           <button 
             onClick={saveContact}
-            className="bg-green-500 hover:bg-green-600 text-white px-5 rounded-lg flex items-center"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 whitespace-nowrap"
           >
-            <Save />
+            <Save size={20} /> Save Contact
           </button>
         </div>
 

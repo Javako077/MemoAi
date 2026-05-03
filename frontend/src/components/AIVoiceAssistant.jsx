@@ -85,19 +85,19 @@ export default function AIVoiceAssistant() {
   if (!user || location.pathname === '/chat') return null;
 
   return (
-    <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center gap-4">
+    <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[100] flex flex-col items-center gap-4">
       <AnimatePresence>
         {(isListening || isProcessing) && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
-            className="glass-panel px-6 py-3 text-sm font-medium flex items-center gap-3 shadow-2xl border-white/20 bg-slate-900/80 backdrop-blur-xl"
+            className="glass-panel px-4 py-2 md:px-6 md:py-3 text-xs md:text-sm font-bold flex items-center gap-3 shadow-2xl border-white/20 bg-slate-900/90 backdrop-blur-2xl"
           >
             {isProcessing ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
-                <span className="text-slate-200">Processing...</span>
+                <span className="text-slate-200">AI is thinking...</span>
               </>
             ) : (
               <>
@@ -111,7 +111,7 @@ export default function AIVoiceAssistant() {
                     />
                   ))}
                 </div>
-                <span className="text-slate-200">Listening...</span>
+                <span className="text-slate-200 uppercase tracking-widest">Listening</span>
               </>
             )}
           </motion.div>
@@ -126,7 +126,7 @@ export default function AIVoiceAssistant() {
               animate={{ scale: 1.5, opacity: [0, 0.5, 0] }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ repeat: Infinity, duration: 1.5 }}
-              className="absolute inset-0 bg-indigo-500 rounded-full"
+              className="absolute inset-0 bg-indigo-500 rounded-full blur-xl"
             />
           )}
         </AnimatePresence>
@@ -134,18 +134,19 @@ export default function AIVoiceAssistant() {
         <button
           onClick={toggleListen}
           disabled={isProcessing}
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group ${
+          className={`relative w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group ${
             isListening 
               ? 'bg-gradient-to-tr from-indigo-600 to-purple-600 scale-110 shadow-indigo-500/50' 
-              : 'bg-slate-800 hover:bg-slate-700 shadow-black/40 border border-white/5'
+              : 'bg-slate-900 hover:bg-slate-800 shadow-black/40 border border-white/5'
           } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
         >
+          <div className="absolute inset-0 rounded-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           {isProcessing ? (
-            <Loader2 className="w-10 h-10 text-white animate-spin" />
+            <Loader2 className="w-8 h-8 md:w-10 md:h-10 text-white animate-spin" />
           ) : isListening ? (
-            <Square className="w-8 h-8 text-white fill-white/20" />
+            <Square className="w-6 h-6 md:w-8 md:h-8 text-white fill-white/20" />
           ) : (
-            <Mic className="w-10 h-10 text-white transition-transform group-hover:scale-110" />
+            <Mic className="w-8 h-8 md:w-10 md:h-10 text-white transition-transform group-hover:scale-110" />
           )}
         </button>
       </div>

@@ -9,7 +9,8 @@ import { useUser } from '../context/UserContext';
 
 
 export default function Chat({ user }) {
-  const { settings, updateSettings } = useUser();
+  const { settings, updateSettings, sidebarCollapsed } = useUser();
+
   const t = translations[settings.language] || translations.English;
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -114,10 +115,14 @@ export default function Chat({ user }) {
     });
   };
 
+  const isLight = settings.theme === 'light';
+
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 overflow-hidden">
+    <div className={`min-h-screen ${isLight ? 'bg-slate-50 text-slate-900' : 'bg-[#0f172a] text-slate-100'} flex flex-col font-sans selection:bg-indigo-500/30 overflow-hidden`}>
       {/* Premium Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-slate-900/70 border-b border-slate-800/50 px-4 py-3 flex items-center justify-between">
+      <header className={`fixed top-0 z-40 backdrop-blur-xl ${isLight ? 'bg-white/70 border-slate-200' : 'bg-slate-900/70 border-slate-800/50'} border-b px-4 py-3 flex items-center justify-between transition-all duration-300 ${sidebarCollapsed ? 'left-20' : 'left-0 md:left-64'} right-0`}>
+
+
         <div className="flex items-center gap-4">
           <Link to="/dashboard" className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white">
             <ArrowLeft className="w-5 h-5" />
@@ -130,9 +135,10 @@ export default function Chat({ user }) {
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full"></div>
             </div>
             <div>
-              <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+              <h1 className={`text-lg font-bold ${isLight ? 'text-slate-900' : 'bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400'}`}>
                 MemoAi
               </h1>
+
               <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold">{t.careAssistant}</p>
             </div>
           </div>
@@ -145,14 +151,16 @@ export default function Chat({ user }) {
           >
             <Globe className="w-4 h-4" /> {settings.language === 'English' ? 'हिन्दी' : 'English'}
           </button>
-          <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium transition-all border border-slate-700/50">
+          <button className={`${isLight ? 'bg-slate-100 border-slate-200 text-slate-600' : 'bg-slate-800 border-slate-700/50 text-white'} hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all border`}>
              <PhoneCall className="w-4 h-4 text-green-400" /> {t.emergencyCall}
           </button>
         </div>
       </header>
 
+
       {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 max-w-4xl mx-auto w-full space-y-8 scrollbar-hide pb-32">
+      <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 max-w-4xl mx-auto w-full space-y-8 scrollbar-hide pb-32 mt-16">
+
         {messages.map((msg, idx) => (
           <div 
             key={idx} 
@@ -169,8 +177,9 @@ export default function Chat({ user }) {
             <div className={`group relative max-w-[85%] md:max-w-[75%] p-4 rounded-2xl shadow-xl transition-all ${
               msg.role === 'user' 
                 ? 'bg-indigo-600 text-white rounded-tr-none border border-indigo-400/20' 
-                : 'bg-slate-800/80 backdrop-blur-md border border-slate-700/50 text-slate-100 rounded-tl-none'
+                : `${isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-slate-800/80 backdrop-blur-md border-slate-700/50 text-slate-100'} rounded-tl-none border`
             }`}>
+
               <div className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">
                 {msg.message}
               </div>
@@ -197,7 +206,8 @@ export default function Chat({ user }) {
             <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shrink-0">
               <Bot className="w-5 h-5 text-white" />
             </div>
-            <div className="bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl rounded-tl-none flex items-center gap-3">
+            <div className={`${isLight ? 'bg-white border-slate-200' : 'bg-slate-800/50 border-slate-700/50'} p-4 rounded-2xl rounded-tl-none flex items-center gap-3 border`}>
+
               <div className="flex gap-1">
                 <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></div>
                 <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-75"></div>
@@ -211,8 +221,10 @@ export default function Chat({ user }) {
       </main>
 
       {/* Input Section */}
-      <footer className="p-6 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent fixed bottom-0 left-0 md:left-64 right-0 z-20">
-        <div className="max-w-5xl">
+      <footer className={`px-4 py-6 md:px-8 bg-gradient-to-t ${isLight ? 'from-slate-50 via-slate-50/80' : 'from-slate-950 via-slate-950/80'} to-transparent fixed bottom-0 transition-all duration-300 ${sidebarCollapsed ? 'left-20' : 'left-0 md:left-64'} right-0 z-20`}>
+        <div className="max-w-4xl mx-auto">
+
+
           <form 
             onSubmit={handleSend}
             className="relative flex items-center gap-4 animate-slide-up"
@@ -223,9 +235,10 @@ export default function Chat({ user }) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t.placeholder}
-                className="w-full bg-slate-800/40 backdrop-blur-2xl border border-white/10 text-slate-100 px-7 py-5 rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all pr-32 placeholder:text-slate-500 shadow-[0_8px_32px_rgba(0,0,0,0.4)] group-hover:bg-slate-800/60"
+                className={`w-full ${isLight ? 'bg-white border-slate-200 text-slate-900 shadow-lg' : 'bg-slate-800/40 border-white/10 text-slate-100 shadow-[0_8px_32px_rgba(0,0,0,0.4)]'} backdrop-blur-2xl border px-7 py-5 rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all pr-32 placeholder:text-slate-500 group-hover:bg-opacity-80`}
                 disabled={isLoading}
               />
+
               
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 <button 
@@ -265,7 +278,8 @@ export default function Chat({ user }) {
 
       {/* Voice Assistant Overlay */}
       {isAssistantActive && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-2xl animate-fade-in">
+        <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${isLight ? 'bg-slate-50/95' : 'bg-slate-950/90'} backdrop-blur-2xl animate-fade-in`}>
+
           <button 
             onClick={() => {
               setIsAssistantActive(false);
@@ -298,9 +312,10 @@ export default function Chat({ user }) {
 
           {/* User Transcript Preview */}
           {assistantState === 'listening' && (
-            <div className="mt-12 max-w-lg px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-slate-300 italic animate-slide-up">
+            <div className={`mt-12 max-w-lg px-8 py-4 ${isLight ? 'bg-indigo-50 border-indigo-100 text-indigo-900' : 'bg-white/5 border-white/10 text-slate-300'} border rounded-2xl italic animate-slide-up`}>
               "{t.boliye}"
             </div>
+
           )}
         </div>
       )}

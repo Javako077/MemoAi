@@ -9,8 +9,18 @@ export function UserProvider({ children }) {
     theme: 'dark',
     notifications: true,
     fontSize: 'medium',
-    language: 'English'
+    language: 'English',
+    voiceSpeed: 'Normal', // Slow / Normal
+    medicineReminders: true,
+    voiceReminders: true,
+    reminderRepeatTime: 5, // 5 / 10 min
+    dailySummary: true,
+    emergencyContact: '',
+    caregiverName: 'Not Linked',
+    age: ''
   });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
 
   // Load user and settings from localStorage on init
   useEffect(() => {
@@ -61,7 +71,17 @@ export function UserProvider({ children }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, updateProfile, settings, updateSettings, loading }}>
+    <UserContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      updateProfile, 
+      settings, 
+      updateSettings, 
+      loading,
+      sidebarCollapsed,
+      setSidebarCollapsed
+    }}>
       {children}
     </UserContext.Provider>
   );

@@ -32,7 +32,8 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   resetOtp: { type: String },
-  resetOtpExpiry: { type: Date }
+  resetOtpExpiry: { type: Date },
+  role: { type: String, enum: ["elder", "caregiver"], default: "elder" }
 });
 const User = mongoose.model("User", UserSchema);
 
@@ -51,6 +52,7 @@ const UserProfileSchema = new mongoose.Schema({
   language: { type: String, enum: ["English", "Hindi"], default: "English" },
   emergencyContact: String,
   conditions: String,
+  avatar: String, // Base64 or URL
   updatedAt: { type: Date, default: Date.now },
 });
 const UserProfile = mongoose.model("UserProfile", UserProfileSchema);
@@ -65,9 +67,22 @@ const MedicineSchema = new mongoose.Schema({
   missedCount: { type: Number, default: 0 },
 });
 const Medicine = mongoose.model("Medicine", MedicineSchema);
+const AdherenceSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  date: { type: String, required: true }, // YYYY-MM-DD
+  taken: { type: Number, default: 0 },
+  total: { type: Number, default: 0 },
+});
+const Adherence = mongoose.model("Adherence", AdherenceSchema);
 
 const RoutineSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  tasks: [{
+    title: { type: String, required: true },
+    time: String,
+    completed: { type: Boolean, default: false }
+  }],
+  // Kept for legacy support in Dashboard snapshot if needed, but will prioritize tasks
   wakeUp: String,
   breakfast: String,
   lunch: String,
@@ -292,32 +307,41 @@ app.post("/api/ai-command", async (req, res) => {
   }
 });
 
-// 6. Get User Stats Route
+// 6. Get User Stats Route (Medicine Adherence)
 app.get("/api/stats/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const chatCount = await Chat.countDocuments({ userId, role: "user" });
-    const quizCount = await Quiz.countDocuments({ userId });
     
-    // Mocking some progress data for the chart
-    const progressData = [
-      { name: 'Mon', score: 40 },
-      { name: 'Tue', score: 30 },
-      { name: 'Wed', score: 60 },
-      { name: 'Thu', score: 45 },
-      { name: 'Fri', score: 70 },
-      { name: 'Sat', score: 85 },
-      { name: 'Sun', score: 90 },
-    ];
+    // Get historical data for the last 6 days
+    const history = await Adherence.find({ userId })
+      .sort({ date: -1 })
+      .limit(6);
+
+    // Get today's live data
+    const todayMeds = await Medicine.find({ userId });
+    const todayStats = {
+      day: new Date().toLocaleDateString('en-US', { weekday: 'short' }),
+      taken: todayMeds.filter(m => m.taken).length,
+      total: todayMeds.length
+    };
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const formattedHistory = history.map(h => {
+      const d = new Date(h.date);
+      return {
+        day: days[d.getDay()],
+        taken: h.taken,
+        total: h.total
+      };
+    }).reverse();
 
     res.json({
-      chatCount,
-      quizCount,
-      accuracy: "85%", // Static for now
-      studyTime: "4h 20m", // Static for now
-      progressData
+      adherenceData: [...formattedHistory, todayStats],
+      totalMeds: todayMeds.length,
+      takenToday: todayStats.taken
     });
   } catch (error) {
+    console.error("Stats Error:", error);
     res.status(500).json({ error: "Server Error" });
   }
 });
@@ -337,7 +361,17 @@ app.get("/api/profile/:userId", async (req, res) => {
 
 app.post("/api/profile", async (req, res) => {
   try {
-    const { userId, ...data } = req.body;
+    const { userId, name, role, ...data } = req.body;
+    
+    // Update User model fields if provided
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (role) updateFields.role = role;
+    
+    if (Object.keys(updateFields).length > 0) {
+      await User.findByIdAndUpdate(userId, updateFields);
+    }
+
     const profile = await UserProfile.findOneAndUpdate(
       { userId },
       { ...data, updatedAt: Date.now() },
@@ -345,6 +379,7 @@ app.post("/api/profile", async (req, res) => {
     );
     res.json(profile);
   } catch (error) {
+    console.error("Profile update error:", error);
     res.status(500).json({ error: "Server Error" });
   }
 });
@@ -429,8 +464,32 @@ app.get("/api/reminders/:userId", async (req, res) => {
 
 // Reset medicine 'taken' status every night at midnight
 cron.schedule("0 0 * * *", async () => {
-  console.log("Resetting medicine taken status for the day...");
-  await Medicine.updateMany({}, { taken: false });
+  console.log("Saving daily adherence and resetting medicine taken status...");
+  try {
+    const today = new Date();
+    today.setDate(today.getDate() - 1); // Get stats for the day that just ended
+    const dateStr = today.toISOString().split('T')[0];
+
+    const users = await User.find({});
+    for (const user of users) {
+      const meds = await Medicine.find({ userId: user._id });
+      if (meds.length > 0) {
+        const taken = meds.filter(m => m.taken).length;
+        const total = meds.length;
+        
+        await Adherence.findOneAndUpdate(
+          { userId: user._id, date: dateStr },
+          { taken, total },
+          { upsert: true }
+        );
+      }
+    }
+
+    await Medicine.updateMany({}, { taken: false });
+    console.log("Daily reset complete.");
+  } catch (error) {
+    console.error("Cron Error:", error);
+  }
 });
 
 // WhatsApp Alert Integration (Placeholder)
