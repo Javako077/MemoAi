@@ -24,7 +24,7 @@ export default function Chat({ user }) {
 
   // Initial Greeting & Auto-start voice if requested
   useEffect(() => {
-    const greeting = "Hello! Main aaj aapki kaise madad kar sakti hoon? Kya aapne apni dawaiyan le li hain?";
+    const greeting = t.chatGreeting;
     
     // Check for auto-start voice parameter
     const params = new URLSearchParams(location.search);
@@ -33,7 +33,7 @@ export default function Chat({ user }) {
     } else {
       setMessages([{ role: 'assistant', message: greeting }]);
       const timer = setTimeout(() => {
-        speak(greeting);
+        speak(greeting, settings.language === 'Hindi' ? 'hi-IN' : 'en-US');
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -84,9 +84,9 @@ export default function Chat({ user }) {
   const startVoiceAssistant = () => {
     setIsAssistantActive(true);
     setAssistantState('speaking');
-    const greeting = "Hello! Main MemoAi hoon. Main aapki kya madad kar sakti hoon?";
+    const greeting = t.welcomeVoice;
     
-    speak(greeting, 'hi-IN', () => {
+    speak(greeting, settings.language === 'Hindi' ? 'hi-IN' : 'en-US', () => {
       startListeningInAssistant();
     });
   };
@@ -127,21 +127,15 @@ export default function Chat({ user }) {
           <Link to="/dashboard" className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <Bot className="w-6 h-6 text-white" />
-              </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full"></div>
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+              <img src="/dosemateLogo.png" alt="DoseMate" className="w-full h-full object-contain p-1" />
             </div>
-            <div>
-              <h1 className={`text-lg font-bold ${isLight ? 'text-slate-900' : 'bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400'}`}>
-                MemoAi
-              </h1>
-
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-black text-white leading-tight">Dose<span className="text-indigo-400">Mate</span></h1>
               <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold">{t.careAssistant}</p>
             </div>
-          </div>
+          </Link>
         </div>
         
         <div className="flex items-center gap-2">

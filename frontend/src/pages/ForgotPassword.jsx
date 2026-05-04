@@ -69,14 +69,15 @@ export default function ForgotPassword() {
              <Key className="w-24 h-24" />
           </div>
 
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-500/20">
-              {step === 1 ? <Mail className="w-8 h-8 text-white" /> : step === 2 ? <Key className="w-8 h-8 text-white" /> : <CheckCircle2 className="w-8 h-8 text-white" />}
+          <div className="flex flex-col items-center mb-10 animate-fade-in">
+            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/20 mb-4 p-2 relative group">
+              <img src="/dosemateLogo.png" alt="DoseMate" className="w-full h-full object-contain" />
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg border-4 border-slate-900 group-hover:scale-110 transition-transform">
+                {step === 1 ? <Mail size={18} /> : step === 2 ? <Key size={18} /> : <CheckCircle2 size={18} />}
+              </div>
             </div>
-            <h2 className="text-3xl font-black tracking-tight mb-2">
-              {step === 1 ? 'Forgot Password' : step === 2 ? 'Enter OTP' : 'Success!'}
-            </h2>
-            <p className="text-slate-400 font-medium">
+            <h2 className="text-3xl font-black tracking-tight text-white mt-4">Dose<span className="text-indigo-400">Mate</span></h2>
+            <p className="text-slate-400 font-medium mt-2 text-center">
               {step === 1 
                 ? "We'll send an OTP to your email to reset your password" 
                 : step === 2 
@@ -203,7 +204,7 @@ export default function ForgotPassword() {
         </div>
         
         <p className="mt-8 text-center text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em]">
-          Secure Authentication • Powered by MemoAi
+          Secure Authentication • Powered by DoseMate
         </p>
       </div>
     </div>

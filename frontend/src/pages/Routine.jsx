@@ -163,9 +163,9 @@ export default function Routine({ user }) {
         {/* Task List */}
         <div className="space-y-4">
           {tasks.length > 0 ? (
-            tasks.map((task) => (
+            tasks.map((task, index) => (
               <div 
-                key={task._id || task.id}
+                key={task._id || task.id || index}
                 className={`group relative flex items-center justify-between p-6 rounded-[2rem] border transition-all duration-300 ${
                   task.completed 
                     ? (isLight ? 'bg-emerald-50/50 border-emerald-100 opacity-75' : 'bg-emerald-500/5 border-emerald-500/10 opacity-60') 

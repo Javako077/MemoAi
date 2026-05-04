@@ -16,12 +16,12 @@ export default function Home({ user }) {
       
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Bot className="w-6 h-6 text-white" />
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-2xl shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+            <img src="/dosemateLogo.png" alt="DoseMate Logo" className="w-full h-full object-contain p-1" />
           </div>
-          <span className="text-2xl font-black tracking-tight text-white">Memo<span className="text-indigo-400">Ai</span></span>
-        </div>
+          <span className="text-2xl font-black tracking-tight text-white">Dose<span className="text-indigo-400">Mate</span></span>
+        </Link>
         <div className="flex gap-4 items-center">
           <Link to="/login" className="px-5 py-2.5 text-sm font-semibold rounded-xl hover:bg-white/5 transition-all">
             Login
@@ -131,7 +131,7 @@ export default function Home({ user }) {
       {/* Footer */}
       <footer className="relative z-10 py-12 border-t border-slate-800/50 mt-20">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-slate-500 font-medium">© 2026 MemoAi. Your companion for a better tomorrow.</p>
+          <p className="text-slate-500 font-medium">© 2026 DoseMate. Your companion for a better tomorrow.</p>
           <div className="flex gap-8 text-slate-500 font-bold text-sm">
             <a href="#" className="hover:text-indigo-400 transition-colors">Privacy</a>
             <a href="#" className="hover:text-indigo-400 transition-colors">Terms</a>

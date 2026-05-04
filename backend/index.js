@@ -114,7 +114,7 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    
+
     if (!user || user.password !== password) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
@@ -133,7 +133,7 @@ app.post("/api/auth/forgot-password", async (req, res) => {
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Set expiry to 10 mins from now
     user.resetOtp = otp;
     user.resetOtpExpiry = new Date(Date.now() + 10 * 60 * 1000);
@@ -206,7 +206,7 @@ app.post("/api/auth/reset-password", async (req, res) => {
 app.post("/api/chat", async (req, res) => {
   try {
     const { userId, message } = req.body;
-    
+
     // Save user message
     const userChat = new Chat({ userId, message, role: "user" });
     await userChat.save();
@@ -243,7 +243,7 @@ app.get("/api/chat/:userId", async (req, res) => {
 app.post("/api/ai-command", async (req, res) => {
   try {
     const { userId, text } = req.body;
-    
+
     const profile = await UserProfile.findOne({ userId });
     const userLanguage = profile?.language || "English";
 
@@ -277,7 +277,7 @@ app.post("/api/ai-command", async (req, res) => {
       console.error("Gemini Generation Error:", genError);
       return res.json({ intent: "unknown", reply: "I'm having trouble processing your request. Please try again." });
     }
-    
+
     // Attempt to parse JSON safely
     let parsedData = {};
     try {
@@ -294,7 +294,7 @@ app.post("/api/ai-command", async (req, res) => {
       const emergencyPhone = profile?.emergencyContact || "+1234567890";
       const user = await User.findById(userId);
       await sendWhatsAppAlert(
-        emergencyPhone, 
+        emergencyPhone,
         `🚨 URGENT: ${user ? user.name : 'The user'} has requested emergency assistance via voice command.`
       );
       parsedData.reply = "I have notified your emergency contact. Please stay calm.";
@@ -311,7 +311,7 @@ app.post("/api/ai-command", async (req, res) => {
 app.get("/api/stats/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    
+
     // Get historical data for the last 6 days
     const history = await Adherence.find({ userId })
       .sort({ date: -1 })
@@ -362,12 +362,12 @@ app.get("/api/profile/:userId", async (req, res) => {
 app.post("/api/profile", async (req, res) => {
   try {
     const { userId, name, role, ...data } = req.body;
-    
+
     // Update User model fields if provided
     const updateFields = {};
     if (name) updateFields.name = name;
     if (role) updateFields.role = role;
-    
+
     if (Object.keys(updateFields).length > 0) {
       await User.findByIdAndUpdate(userId, updateFields);
     }
@@ -450,10 +450,10 @@ app.get("/api/reminders/:userId", async (req, res) => {
     const currentTimeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
     // Find medicines due now (simple string match for now)
-    const dueMeds = await Medicine.find({ 
-      userId, 
+    const dueMeds = await Medicine.find({
+      userId,
       time: currentTimeStr,
-      taken: false 
+      taken: false
     });
 
     res.json(dueMeds);
@@ -476,7 +476,7 @@ cron.schedule("0 0 * * *", async () => {
       if (meds.length > 0) {
         const taken = meds.filter(m => m.taken).length;
         const total = meds.length;
-        
+
         await Adherence.findOneAndUpdate(
           { userId: user._id, date: dateStr },
           { taken, total },
@@ -516,18 +516,18 @@ cron.schedule("* * * * *", async () => {
 
     for (const med of overdueMeds) {
       if (!med.time) continue;
-      
+
       const [mHour, mMin] = med.time.split(':').map(Number);
       const diffMins = (cHour * 60 + cMin) - (mHour * 60 + mMin);
-      
+
       // If medicine is exactly 30 minutes late (or between 30 and 31 minutes late)
       if (diffMins === 30) {
         // Fetch user profile to get emergency contact
         const profile = await UserProfile.findOne({ userId: med.userId._id });
         const emergencyPhone = profile?.emergencyContact || "+1234567890"; // Fallback phone
-        
+
         await sendWhatsAppAlert(
-          emergencyPhone, 
+          emergencyPhone,
           `🚨 URGENT: ${med.userId.name} has not taken their medicine (${med.name}) which was due 30 minutes ago at ${med.time}. Please check on them.`
         );
       }

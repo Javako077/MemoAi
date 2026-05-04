@@ -47,12 +47,12 @@ export default function Signup({ setUser }) {
              <Zap className="w-24 h-24" />
           </div>
 
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-500/20">
-              <Bot className="w-8 h-8 text-white" />
+          <div className="flex flex-col items-center mb-10 animate-fade-in">
+            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/20 mb-4 p-2">
+              <img src="/dosemateLogo.png" alt="DoseMate" className="w-full h-full object-contain" />
             </div>
-            <h2 className="text-3xl font-black tracking-tight mb-2">Create Account</h2>
-            <p className="text-slate-400 font-medium">Start your journey with <span className="text-indigo-400">MemoAi</span></p>
+            <h2 className="text-3xl font-black tracking-tight text-white">Dose<span className="text-indigo-400">Mate</span></h2>
+            <p className="text-slate-400 font-medium mt-1">Create your account</p>
           </div>
 
           {error && (
@@ -133,7 +133,7 @@ export default function Signup({ setUser }) {
         </div>
         
         <p className="mt-8 text-center text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em]">
-          Secure Enrollment • Powered by MemoAi
+          Secure Enrollment • Powered by DoseMate
         </p>
       </div>
     </div>

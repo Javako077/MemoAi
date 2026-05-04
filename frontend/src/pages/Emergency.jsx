@@ -58,13 +58,22 @@ export default function Emergency({ user }) {
 
   const triggerSOS = () => {
     if (!savedContact) {
-      speak("Please save emergency contact first", "en-US");
-      setMessage({ type: 'error', text: "No contact saved" });
+      const msg = settings?.language === 'Hindi' ? "कृपया पहले आपातकालीन संपर्क सेव करें" : "Please save emergency contact first";
+      speak(msg, settings?.language === 'Hindi' ? "hi-IN" : "en-US");
+      setMessage({ type: 'error', text: t.noContact || "No contact saved" });
       return;
     }
 
-    speak("Emergency Alert! Family members ko notify kiya ja raha hai.", "hi-IN");
-    window.location.href = `tel:${savedContact}`;
+    const alertMsg = settings?.language === 'Hindi' 
+      ? "इमरजेंसी अलर्ट! आपके परिवार को कॉल किया जा रहा है।" 
+      : "Emergency Alert! Calling your emergency contact.";
+    
+    speak(alertMsg, settings?.language === 'Hindi' ? "hi-IN" : "en-US");
+    
+    // Slight delay to allow the voice to start before the call interface takes over
+    setTimeout(() => {
+      window.location.href = `tel:${savedContact}`;
+    }, 500);
   };
 
   return (

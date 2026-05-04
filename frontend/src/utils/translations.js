@@ -89,7 +89,7 @@ export const translations = {
     emergencyPhone: "Emergency Phone Number",
     sendTest: "Send Test Alert",
     voiceHelp: "Voice Commands Help",
-    voiceHelpDesc: "Guidance on how to talk to MemoAi.",
+    voiceHelpDesc: "Guidance on how to talk to DoseMate.",
     smartAi: "Smart AI Features",
     smartAiDesc: "Advanced AI summaries for your daily routine.",
     dailySummary: "Daily Summary",
@@ -122,10 +122,12 @@ export const translations = {
 
     // Chat
     careAssistant: "Care Assistant",
-    thinking: "MemoAi is thinking...",
-    listening: "MemoAi is Listening...",
-    speaking: "MemoAi is Speaking...",
-    placeholder: "Message MemoAi...",
+    thinking: "DoseMate is thinking...",
+    listening: "DoseMate is Listening...",
+    speaking: "DoseMate is Speaking...",
+    placeholder: "Message DoseMate...",
+    chatGreeting: "Hello! How can I help you today? Have you taken your medicines?",
+    welcomeVoice: "Hello! I am DoseMate. How can I help you today?"
   },
   Hindi: {
     // Sidebar
@@ -172,7 +174,7 @@ export const translations = {
     emergencyPhone: "आपातकालीन फोन नंबर",
     sendTest: "टेस्ट अलर्ट भेजें",
     voiceHelp: "आवाज कमांड सहायता",
-    voiceHelpDesc: "MemoAi से बात करने के तरीके पर मार्गदर्शन।",
+    voiceHelpDesc: "DoseMate से बात करने के तरीके पर मार्गदर्शन।",
     smartAi: "स्मार्ट AI विशेषताएं",
     smartAiDesc: "आपकी दैनिक दिनचर्या के लिए उन्नत AI सारांश।",
     dailySummary: "दैनिक सारांश",
@@ -250,9 +252,11 @@ export const translations = {
 
     // Chat
     careAssistant: "देखभाल सहायक",
-    thinking: "MemoAi सोच रही है...",
-    listening: "MemoAi सुन रही है...",
-    speaking: "MemoAi बोल रही है...",
+    thinking: "DoseMate सोच रही है...",
+    listening: "DoseMate सुन रही है...",
+    speaking: "DoseMate बोल रही है...",
     placeholder: "संदेश भेजें...",
+    chatGreeting: "नमस्ते! मैं आज आपकी कैसे मदद कर सकती हूँ? क्या आपने अपनी दवाइयां ले ली हैं?",
+    welcomeVoice: "नमस्ते! मैं DoseMate हूँ। मैं आपकी क्या मदद कर सकती हूँ?"
   }
 };

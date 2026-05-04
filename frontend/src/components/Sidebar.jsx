@@ -48,9 +48,14 @@ export default function Sidebar() {
     <>
       {/* Mobile Top Bar */}
       <div className={`lg:hidden fixed top-0 left-0 right-0 h-16 z-[60] flex items-center justify-between px-6 border-b transition-colors ${isLight ? 'bg-white/80 border-slate-200' : 'bg-slate-900/80 border-slate-800'} backdrop-blur-xl`}>
-        <span className={`text-xl font-black ${isLight ? 'text-indigo-600' : 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'}`}>
-          MemoAi
-        </span>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-lg">
+            <img src="/dosemateLogo.png" alt="DoseMate" className="w-full h-full object-contain p-0.5" />
+          </div>
+          <span className={`text-xl font-black ${isLight ? 'text-indigo-600' : 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'}`}>
+            DoseMate
+          </span>
+        </Link>
         <button 
           onClick={() => setIsMobileOpen(true)}
           className={`p-2 rounded-xl ${isLight ? 'bg-slate-100 text-slate-700' : 'bg-slate-800 text-slate-300'}`}
@@ -77,9 +82,14 @@ export default function Sidebar() {
       `}>
         {/* Header */}
         <div className="p-6 flex items-center justify-between">
-          <span className={`text-2xl font-black transition-opacity duration-300 ${sidebarCollapsed ? 'lg:opacity-0 pointer-events-none' : 'opacity-100'} ${isLight ? 'text-indigo-600' : 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'}`}>
-            MemoAi
-          </span>
+          <Link to="/" className={`flex items-center gap-3 transition-opacity duration-300 ${sidebarCollapsed ? 'lg:opacity-0' : 'opacity-100'}`}>
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-xl">
+              <img src="/dosemateLogo.png" alt="DoseMate" className="w-full h-full object-contain p-1" />
+            </div>
+            <span className={`text-2xl font-black ${isLight ? 'text-indigo-600' : 'bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent'}`}>
+              DoseMate
+            </span>
+          </Link>
           <button
             onClick={() => isMobileOpen ? setIsMobileOpen(false) : setSidebarCollapsed(!sidebarCollapsed)}
             className={`p-2 rounded-xl transition-all ${isLight ? 'hover:bg-slate-100 text-slate-500' : 'hover:bg-slate-800 text-slate-400'}`}

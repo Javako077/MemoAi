@@ -129,9 +129,9 @@ export default function Medicines({ user }) {
       {/* Medicine Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {medicines.length > 0 ? (
-          medicines.map((med) => (
+          medicines.map((med, index) => (
             <div
-              key={med._id}
+              key={med._id || index}
               className={`group p-6 rounded-[2.5rem] border transition-all duration-300 ${
                 med.taken
                   ? (isLight ? "bg-emerald-50/50 border-emerald-100 opacity-75" : "bg-emerald-500/5 border-emerald-500/10 opacity-60")

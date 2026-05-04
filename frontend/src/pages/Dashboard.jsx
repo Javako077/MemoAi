@@ -419,7 +419,7 @@ export default function Dashboard() {
             <div className="space-y-3">
               {routine?.tasks?.length > 0 ? (
                 routine.tasks.slice(0, 4).map((task, i) => (
-                  <div key={i} className={`flex justify-between items-center p-3 ${isLight ? 'bg-slate-50' : 'bg-slate-800/30'} rounded-xl border ${isLight ? 'border-slate-100' : 'border-white/5'}`}>
+                  <div key={task._id || task.id || i} className={`flex justify-between items-center p-3 ${isLight ? 'bg-slate-50' : 'bg-slate-800/30'} rounded-xl border ${isLight ? 'border-slate-100' : 'border-white/5'}`}>
                     <div className="flex items-center gap-3 overflow-hidden">
                       {task.completed ? (
                         <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
