@@ -40,15 +40,14 @@ export default function Home({ user }) {
           </div>
           
           <h1 className="text-5xl md:text-8xl font-black leading-[1.1] tracking-tighter animate-slide-up">
-            Your Personal <br />
+           Never Miss <br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400">
-              Memory Assistant
+              What Matters.
             </span>
           </h1>
 
           <p className="text-lg md:text-2xl text-slate-400 max-w-3xl mx-auto font-medium leading-relaxed animate-fade-in delay-150">
-            Helping you remember medicines, daily routines, and important tasks with friendly voice reminders and an AI companion that truly cares.
-          </p>
+           Stay on top of your medicines,and daily tasks with smart reminders and a caring AI companion.   </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 animate-slide-up delay-300">
             <Link
@@ -74,19 +73,19 @@ export default function Home({ user }) {
             {
               icon: Bell,
               title: "Smart Reminders",
-              desc: "Get gentle, timely alerts for your medications and routines so you never miss a beat.",
+              desc: "Get gentle, timely alerts for your medications and routines.",
               color: "indigo"
             },
             {
               icon: Brain,
               title: "Memory Sync",
-              desc: "A digital brain that organizes your day, helping you stay independent and confident.",
+              desc: "A digital brain that organizes your day and keep you independent.",
               color: "purple"
             },
             {
               icon: Heart,
               title: "Caring Voice",
-              desc: "More than just an app — it's a friendly companion you can talk to naturally.",
+              desc: "More than just an app—it's a friendly companion you can talk to naturally.",
               color: "rose"
             }
           ].map((feature, idx) => (
@@ -115,10 +114,10 @@ export default function Home({ user }) {
              <ShieldCheck className="w-64 h-64" />
           </div>
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl md:text-5xl font-black">Family Trusted. Elderly Friendly.</h2>
+            <h2 className="text-3xl md:text-5xl font-black">Trusted by Families.Friendly for Elders.</h2>
             <p className="text-slate-300 text-lg md:text-xl font-medium">
-              Designed specifically for ease of use, with large buttons and high-contrast visuals to ensure safety and peace of mind for your loved ones.
-            </p>
+             Designed for ease of use with large buttons and high-contrast visuals—ensuring safety and peace of mind.
+              </p>
             <div className="pt-6 flex items-center justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all">
                <span className="font-bold text-xl uppercase tracking-tighter">Safety First</span>
                <span className="font-bold text-xl uppercase tracking-tighter">Data Secure</span>
