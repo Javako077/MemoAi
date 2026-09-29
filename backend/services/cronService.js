@@ -1,10 +1,19 @@
 const cron = require("node-cron");
+const mongoose = require("mongoose");
 const { User, Medicine, Adherence, UserProfile } = require("../models");
 const { sendWhatsAppAlert } = require("./alertService");
+
+let isDailyResetRunning = false;
+let isOverdueCheckRunning = false;
 
 const initCronJobs = () => {
   // 1. Reset medicine 'taken' status and store daily adherence every night at midnight
   cron.schedule("0 0 * * *", async () => {
+    if (mongoose.connection.readyState !== 1 || isDailyResetRunning) {
+      return;
+    }
+    
+    isDailyResetRunning = true;
     console.log("Saving daily adherence and resetting medicine taken status...");
     try {
       const today = new Date();
@@ -29,12 +38,19 @@ const initCronJobs = () => {
       await Medicine.updateMany({}, { taken: false });
       console.log("Daily reset complete.");
     } catch (error) {
-      console.error("Cron Daily Reset Error:", error);
+      console.error("Cron Daily Reset Error:", error.message);
+    } finally {
+      isDailyResetRunning = false;
     }
   });
 
   // 2. Check for overdue medicines every minute
   cron.schedule("* * * * *", async () => {
+    if (mongoose.connection.readyState !== 1 || isOverdueCheckRunning) {
+      return;
+    }
+
+    isOverdueCheckRunning = true;
     try {
       const now = new Date();
       const cHour = now.getHours();
@@ -61,7 +77,9 @@ const initCronJobs = () => {
         }
       }
     } catch (error) {
-      console.error("Cron Overdue Medicine Check Error:", error);
+      console.warn("Cron Overdue Medicine Check Error:", error.message);
+    } finally {
+      isOverdueCheckRunning = false;
     }
   });
 
@@ -71,3 +89,4 @@ const initCronJobs = () => {
 module.exports = {
   initCronJobs,
 };
+
