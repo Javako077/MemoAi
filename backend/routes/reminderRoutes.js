@@ -1,11 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const { Medicine } = require("../models");
 
 // 1. Reminder Polling Route (Fetch medicines currently due)
 router.get("/:userId", async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json([]);
+    }
+
     const now = new Date();
     const currentTimeStr = now.toLocaleTimeString("en-US", {
       hour: "2-digit",

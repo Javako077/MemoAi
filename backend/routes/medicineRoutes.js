@@ -1,11 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const { Medicine } = require("../models");
 
 // 1. Get Medicines for a User
 router.get("/:userId", async (req, res) => {
   try {
-    const meds = await Medicine.find({ userId: req.params.userId });
+    const { userId } = req.params;
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json([]);
+    }
+    const meds = await Medicine.find({ userId });
     res.json(meds);
   } catch (error) {
     console.error("Get Medicines Error:", error);
@@ -16,6 +21,9 @@ router.get("/:userId", async (req, res) => {
 // 2. Add New Medicine
 router.post("/", async (req, res) => {
   try {
+    if (!req.body.userId || !mongoose.Types.ObjectId.isValid(req.body.userId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
     const med = new Medicine(req.body);
     await med.save();
     res.status(201).json(med);
@@ -28,7 +36,11 @@ router.post("/", async (req, res) => {
 // 3. Update Medicine (e.g. mark taken, edit dosage or time)
 router.put("/:id", async (req, res) => {
   try {
-    const med = await Medicine.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid medicine ID" });
+    }
+    const med = await Medicine.findByIdAndUpdate(id, req.body, { new: true });
     if (!med) return res.status(404).json({ error: "Medicine not found" });
     res.json(med);
   } catch (error) {
@@ -40,7 +52,11 @@ router.put("/:id", async (req, res) => {
 // 4. Delete Medicine
 router.delete("/:id", async (req, res) => {
   try {
-    const med = await Medicine.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid medicine ID" });
+    }
+    const med = await Medicine.findByIdAndDelete(id);
     if (!med) return res.status(404).json({ error: "Medicine not found" });
     res.json({ message: "Deleted" });
   } catch (error) {

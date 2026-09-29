@@ -1,11 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const { Medicine, Adherence } = require("../models");
 
 // 1. Get User Stats (Medicine Adherence History & Today's Progress)
 router.get("/:userId", async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json({
+        adherenceData: [],
+        totalMeds: 0,
+        takenToday: 0,
+      });
+    }
 
     // Get historical data for the last 6 days
     const history = await Adherence.find({ userId })

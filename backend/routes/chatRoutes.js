@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const { Chat, UserProfile } = require("../models");
 const { model } = require("../config/gemini");
 
@@ -7,6 +8,9 @@ const { model } = require("../config/gemini");
 router.post("/", async (req, res) => {
   try {
     const { userId, message } = req.body;
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
 
     // Save user message
     const userChat = new Chat({ userId, message, role: "user" });
@@ -36,7 +40,11 @@ router.post("/", async (req, res) => {
 // 2. Get Chat History Route
 router.get("/:userId", async (req, res) => {
   try {
-    const chats = await Chat.find({ userId: req.params.userId }).sort({ createdAt: 1 });
+    const { userId } = req.params;
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json([]);
+    }
+    const chats = await Chat.find({ userId }).sort({ createdAt: 1 });
     res.json(chats);
   } catch (error) {
     console.error("Chat History Error:", error);
