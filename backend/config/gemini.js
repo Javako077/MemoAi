@@ -1,8 +1,9 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const getModel = () => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_API_GEMINI;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    console.warn("⚠️ GEMINI_API_KEY is not defined in backend environment variables.");
     return null;
   }
   try {
@@ -20,4 +21,5 @@ module.exports = {
   },
   getModel
 };
+
 
