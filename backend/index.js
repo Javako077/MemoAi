@@ -14,17 +14,14 @@ app.use(express.json({ limit: "10mb" })); // Supports avatar base64 uploads
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to Database immediately on startup
-connectDB().catch((err) => console.warn("Initial DB connection warning:", err.message));
+connectDB().catch(() => {});
 
 // Ensure Database Connection for Serverless & Long-running requests
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-  } catch (err) {
-    console.warn("DB Connection Warning:", err.message);
-  }
+app.use((req, res, next) => {
+  connectDB().catch(() => {});
   next();
 });
+
 
 
 // Initialize Background Cron Jobs (runs if not in ephemeral serverless environment)

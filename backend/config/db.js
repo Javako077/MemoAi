@@ -10,24 +10,29 @@ const connectDB = async () => {
   const mongoUri = process.env.MONGODB_URI || process.env.MONGODB_URL;
 
   if (!mongoUri) {
-    console.warn("⚠️ MONGODB_URI is not defined in environment variables.");
     return null;
   }
 
-  if (cached.conn && mongoose.connection.readyState >= 1) {
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(mongoUri)
+    const opts = {
+      serverSelectionTimeoutMS: 3000,
+      connectTimeoutMS: 3000,
+      bufferCommands: false,
+    };
+
+    cached.promise = mongoose.connect(mongoUri, opts)
       .then((mongooseInstance) => {
         console.log(`✅ MongoDB Connected Successfully`);
         return mongooseInstance;
       })
       .catch((err) => {
         cached.promise = null;
-        console.error("❌ MongoDB Connection Error:", err.message);
-        throw err;
+        console.warn("MongoDB Connection Warning:", err.message);
+        return null;
       });
   }
 
@@ -35,11 +40,12 @@ const connectDB = async () => {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
-    throw e;
+    return null;
   }
 
   return cached.conn;
 };
 
 module.exports = connectDB;
+
 

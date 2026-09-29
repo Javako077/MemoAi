@@ -91,9 +91,13 @@ export const useVoice = () => {
     };
 
     utterance.onerror = (e) => {
-      console.warn("Speech synthesis error:", e);
+      // Don't warn on intentional cancellation or user navigating/interrupting
+      if (e.error && e.error !== 'interrupted' && e.error !== 'canceled') {
+        console.warn("Speech synthesis error:", e.error);
+      }
       finish();
     };
+
 
     // Safety fallback timer (approx 150 words per min = ~10 chars per second)
     const estimatedMs = Math.max(3000, (text.length / 10) * 1000 + 2000);
