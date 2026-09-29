@@ -249,7 +249,7 @@ export default function Dashboard() {
           {nextMedicine ? (
             <motion.div 
               whileHover={{ scale: 1.01 }}
-              className="relative p-8 rounded-[2.5rem] bg-indigo-600 shadow-[0_20px_50px_rgba(79,70,229,0.4)] overflow-hidden group"
+              className="relative p-8 rounded-[2.5rem] bg-indigo-600 shadow-[0_20px_50px_rgba(34,57,111,0.4)] overflow-hidden group"
             >
               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                 <HeartPulse size={120} />

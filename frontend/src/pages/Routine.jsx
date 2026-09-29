@@ -222,7 +222,7 @@ export default function Routine({ user }) {
       {/* Add/Edit Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className={`${isLight ? 'bg-white' : 'bg-slate-900'} w-full max-w-xl rounded-[2.5rem] border ${isLight ? 'border-slate-200 shadow-2xl' : 'border-white/10 shadow-[0_0_100px_rgba(79,70,229,0.2)]'} p-8 space-y-8 animate-in zoom-in-95 duration-300`}>
+          <div className={`${isLight ? 'bg-white' : 'bg-slate-900'} w-full max-w-xl rounded-[2.5rem] border ${isLight ? 'border-slate-200 shadow-2xl' : 'border-white/10 shadow-[0_0_100px_rgba(34,57,111,0.3)]'} p-8 space-y-8 animate-in zoom-in-95 duration-300`}>
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-black">
                 {editingTask ? t.editTask : t.newTask}

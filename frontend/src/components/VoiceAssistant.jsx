@@ -68,7 +68,7 @@ export default function VoiceAssistant({ user }) {
       {/* Voice Assistant Popup */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="glass-panel w-full max-w-md overflow-hidden flex flex-col animate-slide-up max-h-[80vh] shadow-[0_0_50px_rgba(79,70,229,0.3)]">
+          <div className="glass-panel w-full max-w-md overflow-hidden flex flex-col animate-slide-up max-h-[80vh] shadow-[0_0_50px_rgba(34,57,111,0.4)]">
 
             {/* Header */}
             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-indigo-600/20">

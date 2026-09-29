@@ -4,7 +4,7 @@ const API_KEY = import.meta.env.VITE_API_GEMINI;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash-lite", // Using Gemini 2.5 Flash Lite as requested // Use 1.5 Flash for better stability and quota availability
+  model: "gemini-1.5-flash",
   systemInstruction: `You are "DoseMate", a kind, empathetic, and proactive AI assistant for elderly care and memory assistance. 
   Your primary goal is to help users with their daily routines, medications, and provide companionship.
   
@@ -19,6 +19,13 @@ const model = genAI.getGenerativeModel({
 
 export const getGeminiResponse = async (chatHistory, newMessage, language = "English") => {
   try {
+    if (!API_KEY) {
+      console.warn("VITE_API_GEMINI is missing. Using friendly local assistant response.");
+      return language === "Hindi"
+        ? "नमस्ते! मैं डोज़मेट हूँ। कृपया अपनी दवाइयां समय पर लें और अपना ध्यान रखें।"
+        : "Hello! I am DoseMate, your care assistant. Please make sure to take your scheduled medications and stay well hydrated.";
+    }
+
     // Gemini requires the first message in history to be from the 'user'
     const history = [];
     let firstUserFound = false;
@@ -54,7 +61,9 @@ export const getGeminiResponse = async (chatHistory, newMessage, language = "Eng
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "Maaf kijiye, main abhi thoda confuse hu. Kya aap phir se bol sakte hain?";
+    console.warn("Gemini API Error (Falling back to local response):", error.message || error);
+    return language === "Hindi"
+      ? "माफ कीजिये, मुझे आपकी बात समझने में थोड़ी समस्या हो रही है। कृपया सुनिश्चित करें कि आपकी दवाइयाँ समय पर ली गई हैं।"
+      : "I'm having a little trouble connecting right now, but please remember to take your scheduled medicines and rest.";
   }
 };

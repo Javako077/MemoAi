@@ -124,16 +124,16 @@ export default function Emergency({ user }) {
           </h2>
           {savedContact && (
             <div className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full text-sm font-black flex items-center gap-2">
-              <CheckCircle2 size={16} /> 📞 {savedContact}
+              <CheckCircle2 size={16} /> 📞  {savedContact}
             </div>
           )}
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 px-2" size={10} />
             <input
-              className={`${isLight ? 'input-field-light' : 'input-field'} pl-12 py-5 text-xl font-bold`}
+              className={`${isLight ? 'input-field-light' : 'input-field'} pl-12 py-5  text-xl font-bold`}
               placeholder="e.g. 9876543210"
               value={contact}
               onChange={(e) => {

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { translations } from '../utils/translations';
 import { 
-  User, 
   Languages, 
   Volume2, 
   Bell, 
@@ -28,25 +27,14 @@ export default function Settings() {
 
   const [caregiverId, setCaregiverId] = useState('');
 
-  const handleUpdateSetting = (key, value) => {
-    updateSettings({ [key]: value });
-    showSaveStatus();
-  };
-
-  const handleUpdateProfile = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const updates = {
-      name: formData.get('name'),
-    };
-    updateProfile(updates);
-    updateSettings({ age: formData.get('age') });
-    showSaveStatus();
-  };
-
   const showSaveStatus = () => {
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus(null), 3000);
+  };
+
+  const handleUpdateSetting = (key, value) => {
+    updateSettings({ [key]: value });
+    showSaveStatus();
   };
 
   const handleLinkCaregiver = () => {
@@ -61,44 +49,6 @@ export default function Settings() {
   };
 
   const sections = [
-    {
-      id: 'profile',
-      title: t.profileSettings,
-      icon: User,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-400/10',
-      description: t.profileDesc,
-      content: (
-        <form onSubmit={handleUpdateProfile} className="space-y-4 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">{t.displayName}</label>
-              <input 
-                name="name"
-                type="text" 
-                defaultValue={user?.name}
-                className={isLight ? "input-field-light" : "input-field"} 
-                placeholder="Enter your name"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">{t.ageOptional}</label>
-              <input 
-                name="age"
-                type="number" 
-                defaultValue={settings.age}
-                className={isLight ? "input-field-light" : "input-field"} 
-                placeholder="Enter your age"
-              />
-            </div>
-          </div>
-          <button type="submit" className="btn-primary w-auto px-8 flex items-center gap-2">
-            <Save size={18} />
-            {t.saveProfile}
-          </button>
-        </form>
-      )
-    },
     {
       id: 'language',
       title: t.langVoiceSettings,
@@ -449,7 +399,7 @@ export default function Settings() {
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors"></div>
         
         <div className="flex items-center gap-6 z-10">
-          <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-[0_0_30px_rgba(79,70,229,0.5)]">
+          <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-[0_0_30px_rgba(34,57,111,0.5)]">
             <CheckCircle2 size={32} />
           </div>
           <div>

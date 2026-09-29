@@ -41,7 +41,7 @@ export default function Home({ user }) {
           
           <h1 className="text-5xl md:text-8xl font-black leading-[1.1] tracking-tighter animate-slide-up">
            Never Miss <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400">
+            <span className="text-[#22396F]">
               What Matters.
             </span>
           </h1>

@@ -25,7 +25,7 @@ function AppContent() {
         <div className="relative">
           <div className="w-20 h-20 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_20px_rgba(79,70,229,0.5)]"></div>
+            <div className="w-10 h-10 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_20px_rgba(34,57,111,0.5)]"></div>
           </div>
         </div>
       </div>

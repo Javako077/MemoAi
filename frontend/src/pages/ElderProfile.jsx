@@ -144,11 +144,6 @@ export default function ElderProfile({ user: authUser }) {
             <p className="text-slate-500 font-medium flex items-center justify-center md:justify-start gap-2">
               <Mail size={16} /> {profile.email}
             </p>
-            <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${profile.role === 'elder' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                {profile.role === 'elder' ? t.elder : t.caregiver}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -186,27 +181,15 @@ export default function ElderProfile({ user: authUser }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.age}</label>
-                  <input 
-                    type="number"
-                    className={isLight ? "input-field-light" : "input-field"}
-                    value={profile.age}
-                    onChange={e => setProfile({...profile, age: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.role}</label>
-                  <select 
-                    className={isLight ? "input-field-light" : "input-field"}
-                    value={profile.role}
-                    onChange={e => setProfile({...profile, role: e.target.value})}
-                  >
-                    <option value="elder">{t.elder}</option>
-                    <option value="caregiver">{t.caregiver}</option>
-                  </select>
-                </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.age}</label>
+                <input 
+                  type="number"
+                  className={isLight ? "input-field-light" : "input-field"}
+                  value={profile.age}
+                  onChange={e => setProfile({...profile, age: e.target.value})}
+                  placeholder="Enter your age"
+                />
               </div>
             </div>
           </div>
@@ -238,7 +221,7 @@ export default function ElderProfile({ user: authUser }) {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">{t.emergencyContact}</label>
                 <div className="relative">
-                  <Smartphone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Smartphone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 px-2" />
                   <input 
                     type="tel"
                     className={`${isLight ? "input-field-light" : "input-field"} pl-12`}
@@ -262,20 +245,23 @@ export default function ElderProfile({ user: authUser }) {
           </div>
         </div>
 
-        <button 
-          onClick={handleSaveProfile} 
-          disabled={isSaving}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black py-6 rounded-[2rem] text-2xl shadow-xl shadow-emerald-500/20 transition-all active:scale-95 flex items-center justify-center gap-4"
-        >
-          {isSaving ? (
-            <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-          ) : (
-            <>
-              <Save size={28} />
-              {t.saveProfile}
-            </>
-          )}
-        </button>
+        {/* Action Button */}
+        <div className="flex justify-end pt-4">
+          <button 
+            onClick={handleSaveProfile} 
+            disabled={isSaving}
+            className="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-base shadow-lg shadow-indigo-600/25 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
+          >
+            {isSaving ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+              <>
+                <Save size={18} />
+                <span>{t.saveProfile}</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

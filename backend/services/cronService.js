@@ -1,0 +1,73 @@
+const cron = require("node-cron");
+const { User, Medicine, Adherence, UserProfile } = require("../models");
+const { sendWhatsAppAlert } = require("./alertService");
+
+const initCronJobs = () => {
+  // 1. Reset medicine 'taken' status and store daily adherence every night at midnight
+  cron.schedule("0 0 * * *", async () => {
+    console.log("Saving daily adherence and resetting medicine taken status...");
+    try {
+      const today = new Date();
+      today.setDate(today.getDate() - 1); // Stats for the day that just ended
+      const dateStr = today.toISOString().split("T")[0];
+
+      const users = await User.find({});
+      for (const user of users) {
+        const meds = await Medicine.find({ userId: user._id });
+        if (meds.length > 0) {
+          const taken = meds.filter((m) => m.taken).length;
+          const total = meds.length;
+
+          await Adherence.findOneAndUpdate(
+            { userId: user._id, date: dateStr },
+            { taken, total },
+            { upsert: true }
+          );
+        }
+      }
+
+      await Medicine.updateMany({}, { taken: false });
+      console.log("Daily reset complete.");
+    } catch (error) {
+      console.error("Cron Daily Reset Error:", error);
+    }
+  });
+
+  // 2. Check for overdue medicines every minute
+  cron.schedule("* * * * *", async () => {
+    try {
+      const now = new Date();
+      const cHour = now.getHours();
+      const cMin = now.getMinutes();
+
+      // Fetch medicines not yet taken
+      const overdueMeds = await Medicine.find({ taken: false }).populate("userId");
+
+      for (const med of overdueMeds) {
+        if (!med.time || !med.userId) continue;
+
+        const [mHour, mMin] = med.time.split(":").map(Number);
+        const diffMins = cHour * 60 + cMin - (mHour * 60 + mMin);
+
+        // If medicine is exactly 30 minutes late
+        if (diffMins === 30) {
+          const profile = await UserProfile.findOne({ userId: med.userId._id });
+          const emergencyPhone = profile?.emergencyContact || "+1234567890";
+
+          await sendWhatsAppAlert(
+            emergencyPhone,
+            `🚨 URGENT: ${med.userId.name} has not taken their medicine (${med.name}) which was due 30 minutes ago at ${med.time}. Please check on them.`
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Cron Overdue Medicine Check Error:", error);
+    }
+  });
+
+  console.log("⏰ Background cron jobs initialized successfully.");
+};
+
+module.exports = {
+  initCronJobs,
+};

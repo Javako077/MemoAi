@@ -120,7 +120,7 @@ export default function Chat({ user }) {
   return (
     <div className={`min-h-screen ${isLight ? 'bg-slate-50 text-slate-900' : 'bg-[#0f172a] text-slate-100'} flex flex-col font-sans selection:bg-indigo-500/30 overflow-hidden`}>
       {/* Premium Header */}
-      <header className={`fixed top-0 z-40 backdrop-blur-xl ${isLight ? 'bg-white/70 border-slate-200' : 'bg-slate-900/70 border-slate-800/50'} border-b px-4 py-3 flex items-center justify-between transition-all duration-300 ${sidebarCollapsed ? 'left-20' : 'left-0 md:left-64'} right-0`}>
+      <header className={`fixed top-0 z-40 backdrop-blur-xl ${isLight ? 'bg-white/70 border-slate-200' : 'bg-slate-900/70 border-slate-800/50'} border-b px-4 py-3 flex items-center justify-between transition-all duration-300 ${sidebarCollapsed ? 'left-0 lg:left-20' : 'left-0 lg:left-64'} right-0`}>
 
 
         <div className="flex items-center gap-4">
@@ -215,7 +215,7 @@ export default function Chat({ user }) {
       </main>
 
       {/* Input Section */}
-      <footer className={`px-4 py-6 md:px-8 bg-gradient-to-t ${isLight ? 'from-slate-50 via-slate-50/80' : 'from-slate-950 via-slate-950/80'} to-transparent fixed bottom-0 transition-all duration-300 ${sidebarCollapsed ? 'left-20' : 'left-0 md:left-64'} right-0 z-20`}>
+      <footer className={`px-4 py-4 md:py-6 md:px-8 bg-gradient-to-t ${isLight ? 'from-slate-50 via-slate-50/90' : 'from-slate-950 via-slate-950/90'} to-transparent fixed bottom-0 transition-all duration-300 ${sidebarCollapsed ? 'left-0 lg:left-20' : 'left-0 lg:left-64'} right-0 z-20`}>
         <div className="max-w-4xl mx-auto">
 
 
@@ -287,7 +287,7 @@ export default function Chat({ user }) {
 
           <div className="relative mb-20">
             {/* Pulsating Orb */}
-            <div className={`w-40 h-40 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_80px_rgba(79,70,229,0.6)] ${assistantState === 'listening' ? 'animate-pulse' : 'animate-bounce'}`}>
+            <div className={`w-40 h-40 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_80px_rgba(34,57,111,0.6)] ${assistantState === 'listening' ? 'animate-pulse' : 'animate-bounce'}`}>
               {assistantState === 'listening' ? <Mic className="w-20 h-20 text-white" /> : <Bot className="w-20 h-20 text-white" />}
             </div>
             {/* Visualizer Rings */}

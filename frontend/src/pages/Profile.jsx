@@ -82,7 +82,7 @@ export default function Profile() {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     className="input-field pl-12" 
-                    placeholder="John Doe"
+                    placeholder="Name"
                   />
                 </div>
               </div>
@@ -95,7 +95,7 @@ export default function Profile() {
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     className="input-field pl-12" 
-                    placeholder="john@example.com"
+                    placeholder="email@example.com"
                   />
                 </div>
               </div>
