@@ -37,60 +37,70 @@ const getSmartFallback = (message, language = "English") => {
     : `I received your message: "${message}". I am here with you to assist with your medicines, routines, and daily care!`;
 };
 
-// 1. Send/Receive Chat Route (Gemini Integration + Safe Fallback)
+// 1. Send/Receive Chat Route (Gemini Multi-Model AI + Safe Fallback)
 router.post("/", async (req, res) => {
   try {
-    const { userId, message } = req.body;
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: "Invalid user ID" });
+    const { userId, message, language } = req.body;
+    const userMessageText = (message || "").trim();
+
+    if (!userMessageText) {
+      return res.json({
+        userMessage: { role: "user", message: "" },
+        aiMessage: { role: "assistant", message: "Hello! How can I help you today?" }
+      });
     }
 
-    // Save user message
-    const userChat = new Chat({ userId, message: message || "", role: "user" });
-    await userChat.save();
+    let userLanguage = language || "English";
+    const isValidUser = userId && mongoose.Types.ObjectId.isValid(userId);
 
-    let userLanguage = "English";
-    try {
-      const profile = await UserProfile.findOne({ userId });
-      if (profile?.language) userLanguage = profile.language;
-    } catch (profileErr) {
-      console.warn("Could not fetch user profile language:", profileErr);
-    }
-
-    let assistantMessage = "";
-    if (model) {
+    if (isValidUser) {
       try {
-        const prompt = `You are DoseMate, a caring and compassionate healthcare AI assistant for elderly users. Preferred language: ${userLanguage}. Please reply concisely (1-3 sentences) in ${userLanguage} with warmth and clarity. User said: ${message}`;
-        const result = await model.generateContent(prompt);
-        if (result && result.response) {
-          assistantMessage = result.response.text();
-        }
-      } catch (geminiErr) {
-        console.warn("Gemini model call failed, falling back to local assistant:", geminiErr.message);
+        const profile = await UserProfile.findOne({ userId });
+        if (profile?.language) userLanguage = profile.language;
+      } catch (profileErr) {
+        console.warn("Could not fetch user profile language:", profileErr);
       }
     }
 
-    if (!assistantMessage) {
-      assistantMessage = getSmartFallback(message, userLanguage);
+    let assistantMessage = "";
+    try {
+      const prompt = `You are DoseMate, a caring, gentle, and highly helpful AI healthcare assistant for elderly care.
+User's preferred language: ${userLanguage}.
+User asked: "${userMessageText}"
+Please answer the user's question clearly, warmly, and helpfully in ${userLanguage} (1-3 sentences).`;
+
+      const { generateAIResponse } = require("../config/gemini");
+      assistantMessage = await generateAIResponse(prompt);
+    } catch (aiErr) {
+      console.warn("AI generation failed:", aiErr.message);
     }
 
-    const aiChat = new Chat({ userId, message: assistantMessage, role: "assistant" });
-    await aiChat.save();
+    if (!assistantMessage) {
+      assistantMessage = getSmartFallback(userMessageText, userLanguage);
+    }
+
+    let userChat = { role: "user", message: userMessageText };
+    let aiChat = { role: "assistant", message: assistantMessage };
+
+    if (isValidUser) {
+      try {
+        userChat = await new Chat({ userId, message: userMessageText, role: "user" }).save();
+        aiChat = await new Chat({ userId, message: assistantMessage, role: "assistant" }).save();
+      } catch (dbErr) {
+        console.warn("Could not save chat history:", dbErr.message);
+      }
+    }
 
     return res.json({ userMessage: userChat, aiMessage: aiChat });
   } catch (error) {
     console.error("Chat Error:", error);
-    const fallbackAi = new Chat({
-      userId: req.body?.userId,
-      message: "Hello! I am DoseMate. I am here to help you with your medicines, routines, and daily care.",
-      role: "assistant"
-    });
     return res.json({
       userMessage: { role: "user", message: req.body?.message || "" },
-      aiMessage: fallbackAi
+      aiMessage: { role: "assistant", message: "Hello! I am DoseMate. I am here to help you with your health, medicines, and routine." }
     });
   }
 });
+
 
 // 2. Get Chat History Route
 router.get("/:userId", async (req, res) => {

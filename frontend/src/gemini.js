@@ -65,25 +65,34 @@ const getContextualFallback = (message, language = "English") => {
 };
 
 export const getGeminiResponse = async (chatHistory, newMessage, language = "English") => {
+  const cleanMsg = (newMessage || "").trim();
+  if (!cleanMsg) return "";
+
   try {
     const userStored = localStorage.getItem("user");
-    const userId = userStored ? (JSON.parse(userStored).id || JSON.parse(userStored)._id) : null;
+    let userId = null;
+    if (userStored) {
+      try {
+        const parsed = JSON.parse(userStored);
+        userId = parsed.id || parsed._id;
+      } catch (e) {}
+    }
     
-    if (userId) {
-      const res = await axios.post(`${BACKEND_URL}/chat`, {
-        userId,
-        message: newMessage,
-      }, { timeout: 6000 });
+    const res = await axios.post(`${BACKEND_URL}/chat`, {
+      userId,
+      message: cleanMsg,
+      language: language || "English",
+    }, { timeout: 12000 });
 
-      if (res.data?.aiMessage?.message) {
-        return res.data.aiMessage.message;
-      }
+    if (res.data?.aiMessage?.message) {
+      return res.data.aiMessage.message;
     }
   } catch (backendErr) {
-    console.warn("Backend chat unavailable, using local intelligent assistant:", backendErr?.message);
+    console.warn("Backend chat unavailable or timed out, using local intelligent assistant:", backendErr?.message);
   }
 
   // Immediate Caring Contextual Response
-  return getContextualFallback(newMessage, language);
+  return getContextualFallback(cleanMsg, language);
 };
+
 

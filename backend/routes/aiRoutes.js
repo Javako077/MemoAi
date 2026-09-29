@@ -42,18 +42,19 @@ router.post("/ai-command", async (req, res) => {
       }
     `;
 
+    const { generateAIResponse } = require("../config/gemini");
     let parsedData = null;
 
-    if (model) {
-      try {
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text().trim();
+    try {
+      const responseText = await generateAIResponse(prompt);
+      if (responseText) {
         const cleanedText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
         parsedData = JSON.parse(cleanedText);
-      } catch (genError) {
-        console.warn("Gemini AI Command Parse Error, using local intent parser:", genError.message);
       }
+    } catch (genError) {
+      console.warn("Gemini AI Command Parse Error, using local intent parser:", genError.message);
     }
+
 
     // Smart Local Fallback Parser if Gemini is unreachable or returned invalid JSON
     if (!parsedData || !parsedData.reply) {
