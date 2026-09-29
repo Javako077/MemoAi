@@ -11,10 +11,10 @@ router.get("/:userId", async (req, res) => {
       return res.json([]);
     }
     const meds = await Medicine.find({ userId });
-    res.json(meds);
+    return res.json(meds || []);
   } catch (error) {
     console.error("Get Medicines Error:", error);
-    res.status(500).json({ error: "Server Error" });
+    return res.json([]);
   }
 });
 
@@ -26,10 +26,10 @@ router.post("/", async (req, res) => {
     }
     const med = new Medicine(req.body);
     await med.save();
-    res.status(201).json(med);
+    return res.status(201).json(med);
   } catch (error) {
     console.error("Add Medicine Error:", error);
-    res.status(500).json({ error: "Server Error" });
+    return res.status(500).json({ error: "Failed to add medicine" });
   }
 });
 
@@ -42,10 +42,10 @@ router.put("/:id", async (req, res) => {
     }
     const med = await Medicine.findByIdAndUpdate(id, req.body, { new: true });
     if (!med) return res.status(404).json({ error: "Medicine not found" });
-    res.json(med);
+    return res.json(med);
   } catch (error) {
     console.error("Update Medicine Error:", error);
-    res.status(500).json({ error: "Server Error" });
+    return res.status(500).json({ error: "Failed to update medicine" });
   }
 });
 
@@ -58,11 +58,12 @@ router.delete("/:id", async (req, res) => {
     }
     const med = await Medicine.findByIdAndDelete(id);
     if (!med) return res.status(404).json({ error: "Medicine not found" });
-    res.json({ message: "Deleted" });
+    return res.json({ message: "Deleted" });
   } catch (error) {
     console.error("Delete Medicine Error:", error);
-    res.status(500).json({ error: "Server Error" });
+    return res.status(500).json({ error: "Failed to delete medicine" });
   }
 });
 
 module.exports = router;
+

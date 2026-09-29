@@ -13,11 +13,22 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" })); // Supports avatar base64 uploads
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to Database
-connectDB();
+// Ensure Database Connection for Serverless & Long-running requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.warn("DB Connection Warning:", err.message);
+  }
+  next();
+});
 
-// Initialize Background Cron Jobs
-initCronJobs();
+// Initialize Background Cron Jobs (runs if not in ephemeral serverless environment)
+try {
+  initCronJobs();
+} catch (cronErr) {
+  console.warn("Cron initialization warning:", cronErr.message);
+}
 
 // API Routes
 app.use("/api", routes);
@@ -31,8 +42,11 @@ app.get("/", (req, res) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;
+
