@@ -17,9 +17,9 @@ const ACTIVE_MODELS = [
  * Generate AI Response with verified multi-model fallback
  */
 const generateAIResponse = async (prompt) => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || "AIzaSyAMtlRy6Fnm8BSmCpZBdD077EipPKdZvBk";
   if (!apiKey) {
-    console.warn("⚠️ GEMINI_API_KEY is not defined in backend environment variables.");
+    console.warn("⚠️ GEMINI_API_KEY is not defined.");
     return null;
   }
 
@@ -44,7 +44,7 @@ const generateAIResponse = async (prompt) => {
 };
 
 const getModel = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || "AIzaSyAMtlRy6Fnm8BSmCpZBdD077EipPKdZvBk";
   if (!apiKey) return null;
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -53,6 +53,7 @@ const getModel = () => {
     return null;
   }
 };
+
 
 module.exports = {
   generateAIResponse,

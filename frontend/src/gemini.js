@@ -64,10 +64,13 @@ const getContextualFallback = (message, language = "English") => {
     : `I received your message: "${message}". I am here with you to assist with your medicines, routines, and daily care!`;
 };
 
+const GEMINI_DIRECT_KEY = "AIzaSyAMtlRy6Fnm8BSmCpZBdD077EipPKdZvBk";
+
 export const getGeminiResponse = async (chatHistory, newMessage, language = "English") => {
   const cleanMsg = (newMessage || "").trim();
   if (!cleanMsg) return "";
 
+  // 1. Try Backend Chat Endpoint First
   try {
     const userStored = localStorage.getItem("user");
     let userId = null;
@@ -88,11 +91,35 @@ export const getGeminiResponse = async (chatHistory, newMessage, language = "Eng
       return res.data.aiMessage.message;
     }
   } catch (backendErr) {
-    console.warn("Backend chat unavailable or timed out, using local intelligent assistant:", backendErr?.message);
+    console.warn("Backend chat unavailable, trying direct Gemini API:", backendErr?.message);
   }
 
-  // Immediate Caring Contextual Response
+  // 2. Direct Gemini REST API Call
+  try {
+    const prompt = `You are DoseMate, a caring, gentle, and helpful healthcare AI companion for elderly care.
+Language: ${language}.
+Answer the user's question directly, warmly, and concisely (1-3 sentences) in ${language}.
+User says: "${cleanMsg}"`;
+
+    const directRes = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${GEMINI_DIRECT_KEY}`,
+      {
+        contents: [{ parts: [{ text: prompt }] }]
+      },
+      { timeout: 10000 }
+    );
+
+    const generatedText = directRes.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (generatedText && generatedText.trim()) {
+      return generatedText.trim();
+    }
+  } catch (directErr) {
+    console.warn("Direct Gemini API error:", directErr?.message);
+  }
+
+  // 3. Immediate Caring Contextual Response (Offline fallback)
   return getContextualFallback(cleanMsg, language);
 };
+
 
 
