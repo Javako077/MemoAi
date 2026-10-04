@@ -52,25 +52,56 @@ router.post("/", async (req, res) => {
 
     let userLanguage = language || "English";
     const isValidUser = userId && mongoose.Types.ObjectId.isValid(userId);
+    let history = [];
 
     if (isValidUser) {
       try {
         const profile = await UserProfile.findOne({ userId });
         if (profile?.language) userLanguage = profile.language;
-      } catch (profileErr) {
-        console.warn("Could not fetch user profile language:", profileErr);
+        
+        // Fetch last 20 chats for conversation history context
+        const recentChats = await Chat.find({ userId }).sort({ createdAt: -1 }).limit(20);
+        
+        let rawHistory = [];
+        recentChats.reverse().forEach(c => {
+          if (c.message && c.message.trim()) {
+            rawHistory.push({
+              role: c.role === 'assistant' ? 'model' : 'user',
+              parts: [{ text: c.message }]
+            });
+          }
+        });
+
+        // Gemini requires strict 'user' -> 'model' alternation. 
+        // Must start with 'user' and end with 'model' (because the new incoming message is 'user').
+        for (const msg of rawHistory) {
+          if (history.length === 0) {
+            if (msg.role === 'user') history.push(msg);
+          } else if (history[history.length - 1].role !== msg.role) {
+            history.push(msg);
+          } else {
+            // Merge consecutive messages from the same role
+            history[history.length - 1].parts[0].text += "\n" + msg.parts[0].text;
+          }
+        }
+        
+        // Ensure the last message in history is from 'model'
+        if (history.length > 0 && history[history.length - 1].role === 'user') {
+          history.pop();
+        }
+      } catch (err) {
+        console.warn("Could not fetch user profile or history:", err.message);
       }
     }
 
     let assistantMessage = "";
     try {
-      const prompt = `You are DoseMate, a caring, gentle, and highly helpful AI healthcare assistant for elderly care.
+      const systemInstruction = `You are DoseMate, a caring, gentle, and highly helpful AI healthcare assistant for elderly care.
 User's preferred language: ${userLanguage}.
-User asked: "${userMessageText}"
-Please answer the user's question clearly, warmly, and helpfully in ${userLanguage} (1-3 sentences).`;
+Please answer the user's questions clearly, warmly, and helpfully in ${userLanguage} (1-3 sentences).`;
 
-      const { generateAIResponse } = require("../config/gemini");
-      assistantMessage = await generateAIResponse(prompt);
+      const { generateAIChatResponse } = require("../config/gemini");
+      assistantMessage = await generateAIChatResponse(systemInstruction, history, userMessageText);
     } catch (aiErr) {
       console.warn("AI generation failed:", aiErr.message);
     }

@@ -17,9 +17,14 @@ app.use(express.urlencoded({ extended: true }));
 connectDB().catch(() => {});
 
 // Ensure Database Connection for Serverless & Long-running requests
-app.use((req, res, next) => {
-  connectDB().catch(() => {});
-  next();
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("Database connection error in middleware:", err.message);
+    next(err);
+  }
 });
 
 

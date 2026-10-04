@@ -102,7 +102,7 @@ Answer the user's question directly, warmly, and concisely (1-3 sentences) in ${
 User says: "${cleanMsg}"`;
 
     const directRes = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${GEMINI_DIRECT_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_DIRECT_KEY}`,
       {
         contents: [{ parts: [{ text: prompt }] }]
       },
