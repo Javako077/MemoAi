@@ -1,49 +1,34 @@
 const mongoose = require("mongoose");
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
 const connectDB = async () => {
-  const mongoUri = process.env.MONGODB_URI || process.env.MONGODB_URL;
+  // Prefer MONGODB_URL (local) over MONGODB_URI to avoid Atlas conflicts
+  const mongoUri = process.env.MONGODB_URL || process.env.MONGODB_URI;
 
   if (!mongoUri) {
+    console.warn("MongoDB Connection Warning: No URI provided in environment");
     return null;
   }
 
-  if (cached.conn && mongoose.connection.readyState === 1) {
-    return cached.conn;
+  // If already connected, return the connection
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
   }
 
-  if (!cached.promise) {
-    const opts = {
-      serverSelectionTimeoutMS: 3000,
-      connectTimeoutMS: 3000,
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(mongoUri, opts)
-      .then((mongooseInstance) => {
-        console.log(`✅ MongoDB Connected Successfully`);
-        return mongooseInstance;
-      })
-      .catch((err) => {
-        cached.promise = null;
-        console.warn("MongoDB Connection Warning:", err.message);
-        return null;
-      });
-  }
+  const opts = {
+    serverSelectionTimeoutMS: 3000,
+    connectTimeoutMS: 3000,
+    bufferCommands: false,
+  };
 
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
+    // Explicitly await the connection
+    const mongooseInstance = await mongoose.connect(mongoUri, opts);
+    console.log(`✅ MongoDB Connected Successfully`);
+    return mongooseInstance;
+  } catch (err) {
+    console.warn("MongoDB Connection Warning:", err.message);
     return null;
   }
-
-  return cached.conn;
 };
 
 module.exports = connectDB;

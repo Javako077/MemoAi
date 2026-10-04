@@ -56,8 +56,10 @@ const initCronJobs = () => {
       const cHour = now.getHours();
       const cMin = now.getMinutes();
 
-      // Fetch medicines not yet taken
-      const overdueMeds = await Medicine.find({ taken: false }).populate("userId");
+      // Fetch medicines not yet taken with 4s timeout
+      const overdueMeds = await Medicine.find({ taken: false })
+        .populate("userId")
+        .maxTimeMS(4000);
 
       for (const med of overdueMeds) {
         if (!med.time || !med.userId) continue;
@@ -67,7 +69,7 @@ const initCronJobs = () => {
 
         // If medicine is exactly 30 minutes late
         if (diffMins === 30) {
-          const profile = await UserProfile.findOne({ userId: med.userId._id });
+          const profile = await UserProfile.findOne({ userId: med.userId._id }).maxTimeMS(3000);
           const emergencyPhone = profile?.emergencyContact || "+1234567890";
 
           await sendWhatsAppAlert(
@@ -77,11 +79,15 @@ const initCronJobs = () => {
         }
       }
     } catch (error) {
-      console.warn("Cron Overdue Medicine Check Error:", error.message);
+      // Quietly suppress temporary network connectivity hiccups
+      if (!error.message.includes("timed out") && !error.message.includes("ETIMEDOUT") && !error.message.includes("ENOTFOUND")) {
+        console.warn("Cron Overdue Medicine Check Warning:", error.message);
+      }
     } finally {
       isOverdueCheckRunning = false;
     }
   });
+
 
   console.log("⏰ Background cron jobs initialized successfully.");
 };
